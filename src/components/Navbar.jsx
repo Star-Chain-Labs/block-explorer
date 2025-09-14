@@ -41,9 +41,12 @@ const Navbar = () => {
     <nav className="fixed top-13 left-0 w-full bg-white text-black shadow-md z-40 border-t border-gray-200">
       <div className="max-w-[90%] w-full mx-auto flex justify-between items-center px-4 py-5 sm:px-6 lg:px-8">
         {/* Left - Logo */}
-        <div className="flex items-center space-x-2">
-          <span className="text-black font-bold text-xl">CBM BlockExplorer</span>
-          <span className="text-gray-500 text-sm">A Scan Original</span>
+        <div className="flex items-center gap-2">
+          <img src="/robomine.jpg" alt="logo" className="w-14 h-14 object-cover" />
+          <div className="flex flex-col space-x-2">
+            <span className="text-black font-bold text-xl">CBM BlockExplorer</span>
+            <span className="text-gray-500 text-sm">A Scan Original</span>
+          </div>
         </div>
 
         {/* Center - Menu Items */}

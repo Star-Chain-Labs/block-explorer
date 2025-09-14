@@ -11,7 +11,7 @@ export const MainLayout = () => {
       <Navbar />
 
       {/* Main Content */}
-      <main className="flex-1 bg-gray-50 pt-40">
+      <main className="flex-1 bg-gray-50 pt-40 p-5">
         <Outlet />
       </main>
 

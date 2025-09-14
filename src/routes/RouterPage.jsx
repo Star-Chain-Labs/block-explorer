@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import Home from "../pages/Home";
 import Blocks from "../pages/Blocks";
-import Accounts from "../pages/Accounts";
+import TopAccounts from "../pages/TopAccounts";
 import Contracts from "../pages/Contracts";
 import ValidatorsLeaderboard from "../pages/ValidatorsLeaderboard";
 import ValidatorsInfo from "../pages/ValidatorsInfo";
@@ -20,7 +20,7 @@ export default function RouterPage() {
         <Route path="/" element={<Home />} />
         <Route path="/blockchain/transactions" element={<Transaction />} />
         <Route path="/blockchain/blocks" element={<Blocks />} />
-        <Route path="/blockchain/accounts" element={<Accounts />} />
+        <Route path="/blockchain/accounts" element={<TopAccounts />} />
         <Route path="/blockchain/contracts" element={<Contracts />} />
         <Route path="/validators/leaderboard" element={<ValidatorsLeaderboard />} />
         <Route path="/validators/info" element={<ValidatorsInfo />} />

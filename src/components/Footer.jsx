@@ -12,10 +12,10 @@ const Footer = () => {
           <div className="">
             <div className="flex items-center gap-2 mb-2">
             <SiBnbchain className="text-yellow-400 size-7" />
-              <span className=" text-xl">Powered By BNB Smart Chain</span>
+              <span className=" text-xl">Powered By CBM Block Explorer</span>
             </div>
             <p className="text-gray-800 text-sm leading-relaxed mb-3">
-              BscScan is a Block Explorer and Analytics Platform for BNB Smart
+              CBM is a Block Explorer and Analytics Platform for BNB Smart
               Chain.
             </p>
             <button className="bg-gray-100 border px-3 py-1 rounded hover:bg-gray-200 text-xs">
@@ -69,7 +69,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="mt-10 border-t pt-4 flex flex-col md:flex-row items-center justify-between text-gray-800 text-xs">
           <p>
-            BscScan © 2025 (BSC-B) | Built by Team{" "}
+            CBM © 2025 | Built by Team{" "}
             <Link to="/etherscan" className="text-blue-500 hover:underline">
               Etherscan
             </Link>

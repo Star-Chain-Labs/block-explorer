@@ -6,7 +6,7 @@ const App = () => {
   return (
     <>
      <RouterPage />
-     <MainLayout />
+     {/* <MainLayout /> */}
     </>
   )
 }
