@@ -5,7 +5,6 @@ import RouterPage from './routes/RouterPage'
 const App = () => {
   return (
     <>
-     <UserMain />
      <RouterPage />
     </>
   )
