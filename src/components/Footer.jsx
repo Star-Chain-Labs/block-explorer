@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { FaTwitter, FaFacebookF, FaInstagram } from "react-icons/fa";
 import { SiBnbchain } from "react-icons/si";
-
+import metaimg from "../assets/metamask.png"
 const Footer = () => {
   return (
     <footer className="bg-white border-t text-gray-800 text-sm">
@@ -11,16 +11,20 @@ const Footer = () => {
           {/* Left - Powered by BNB Smart Chain */}
           <div className="">
             <div className="flex items-center gap-2 mb-2">
-            <SiBnbchain className="text-yellow-400 size-7" />
-              <span className=" text-xl">Powered By CBM Block Explorer</span>
+              <SiBnbchain className="text-yellow-400 size-7" />
+              <span className=" text-xl">Powered By BNB Smart Chain</span>
             </div>
             <p className="text-gray-800 text-sm leading-relaxed mb-3">
               CBM is a Block Explorer and Analytics Platform for BNB Smart
               Chain.
             </p>
-            <button className="bg-gray-100 border px-3 py-1 rounded hover:bg-gray-200 text-xs">
-              Add BSC Network
+
+
+            <button className="flex items-center gap-2 bg-gray-100 border px-3 py-1 rounded hover:bg-gray-200 text-xs">
+              <img src={metaimg} alt="MetaMask" className="w-4 h-4" />
+             Add Bsc Network
             </button>
+
           </div>
 
           {/* Company */}
