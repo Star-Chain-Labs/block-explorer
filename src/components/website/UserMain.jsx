@@ -28,7 +28,7 @@ const UserMain = () => {
       <CryptoSection />
       <Faq />
       <Contact />
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 };
