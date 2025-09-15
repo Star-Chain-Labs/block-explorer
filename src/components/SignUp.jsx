@@ -1,12 +1,14 @@
 import React, { useState } from 'react'
 import ReusableForm from '../components/ReusableForm'
-import { FaEnvelope, FaLock } from 'react-icons/fa';
+import { FaEnvelope, FaLock, FaUser } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
-const SignIn = () => {
+const SignUp = () => {
   const [formData, setFormData] = useState({
+    username: "",
     email: "",
-    password: ""
+    password: "",
+    confirmPassword: ""
   });
   const [loading, setLoading] = useState(false);
 
@@ -20,10 +22,20 @@ const SignIn = () => {
   };
 
   return (
-    <div className='w-full bg-gray-50 flex items-center justify-center py-20'>
+    <div className='w-full bg-gray-50 flex items-center justify-center py-10'>
       <div className='max-w-xl w-full bg-white border border-gray-200 shadow-lg rounded-xl overflow-hidden p-8'>
-        <h1 className='text-3xl text-center font-bold mb-4'>Sign<span className='text-blue-700'>In</span></h1>
+        <h1 className='text-3xl text-center font-bold mb-4'>Sign<span className='text-blue-700'>Up</span></h1>
         <form onSubmit={handleSubmit} className='space-y-4'>
+          <ReusableForm
+            label={"Username"}
+            name={"username"}
+            type={"text"}
+            value={formData.username}
+            onChange={handleOnchange}
+            placeholder={"Enter your username"}
+            required
+            icon={FaUser}
+          />
           <ReusableForm
             label={"Email"}
             name={"email"}
@@ -44,23 +56,31 @@ const SignIn = () => {
             required
             icon={FaLock}
           />
-          <Link className='text-blue-500 flex justify-end hover:text-blue-600 hover:underline text-sm transition duration-300'
-            to='/forget-password'>Forgot Password</Link>
+          <ReusableForm
+            label={"Confirm Password"}
+            name={"confirmPassword"}
+            type={"password"}
+            value={formData.confirmPassword}
+            onChange={handleOnchange}
+            placeholder={"Confirm your password"}
+            required
+            icon={FaLock}
+          />
+          
           <button
-            disabled={loading}
             type='submit'
             className='w-full bg-blue-700 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-300'
           >
             {loading && <span className='spinner-border spinner-border-sm spinner-border-white mr-2'></span>}
-            {loading ? "Signing In..." : "Sign In"}
+            {loading ? "Signing Up..." : "Sign Up"}
           </button>
           <p className='text-center text-gray-600'>
-            Don't have an account?{" "}
+            Already have an account?{" "}
             <Link
-              to='/signup'
+              to='/signin'
               className='text-blue-500 hover:text-blue-600 hover:underline transition duration-300'
             >
-              Sign Up
+              Sign In
             </Link>
           </p>
         </form>
@@ -69,4 +89,4 @@ const SignIn = () => {
   )
 }
 
-export default SignIn
+export default SignUp

@@ -5,7 +5,7 @@ import { SiBnbchain } from "react-icons/si";
 import metaimg from "../assets/metamask.png"
 const Footer = () => {
   return (
-    <footer className="bg-white border-t text-gray-800 text-sm">
+    <footer className="bg-white border-t border-gray-300 text-gray-800 text-sm">
       <div className="w-full  px-10 py-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Left - Powered by BNB Smart Chain */}
@@ -71,7 +71,7 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-10 border-t pt-4 flex flex-col md:flex-row items-center justify-between text-gray-800 text-xs">
+        <div className="mt-10 border-t border-gray-300 pt-4 flex flex-col md:flex-row items-center justify-between text-gray-800 text-xs">
           <p>
             CBM © 2025 | Built by Team{" "}
             <Link to="/etherscan" className="text-blue-500 hover:underline">

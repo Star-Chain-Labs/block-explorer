@@ -151,7 +151,7 @@ const Transaction = () => {
       </div>
 
       {/* Transaction Section Header */}
-      <div className="p-4 text-2xl font-bold text-gray-800">Ozone Chain transactions</div>
+      <div className="p-4 text-2xl font-bold text-gray-800">Transactions</div>
 
       {/* Transaction Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4">

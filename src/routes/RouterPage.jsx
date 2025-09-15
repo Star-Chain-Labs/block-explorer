@@ -7,11 +7,14 @@ import ValidatorsLeaderboard from "../pages/ValidatorsLeaderboard";
 import ValidatorsInfo from "../pages/ValidatorsInfo";
 import Delegators from "../pages/Delegators";
 import TopTokens from "../pages/TopTokens";
-import Transfers from "../pages/Transfers";
 import CreateToken from "../pages/CreateToken";
 import SignIn from "../components/SignIn";
 import { MainLayout } from "../layout/Mainlayout";
 import Transaction from "../pages/Transaction";
+import SignUp from "../components/SignUp";
+import ForgetPassword from "../components/ForgetPassword";
+import TokenTransfer from "../pages/TokenTransfer";
+import TransactionDetails from "../pages/TransactionDetails";
 
 export default function RouterPage() {
   return (
@@ -26,9 +29,13 @@ export default function RouterPage() {
         <Route path="/validators/info" element={<ValidatorsInfo />} />
         <Route path="/validators/delegators" element={<Delegators />} />
         <Route path="/tokens/top" element={<TopTokens />} />
-        <Route path="/tokens/transfers" element={<Transfers />} />
+        <Route path="/tokens/transfers" element={<TokenTransfer />} />
         <Route path="/tokens/create" element={<CreateToken />} />
+        <Route path="/blockchain/transaction-details" element={<TransactionDetails />} />
         <Route path="/signin" element={<SignIn />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/forget-password" element={<ForgetPassword />} />
+        <Route path="*" element={<h1>404</h1>} />
       </Route>
     </Routes>
   );

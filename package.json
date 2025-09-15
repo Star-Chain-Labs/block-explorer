@@ -1,16 +1,17 @@
 {
-  "name": "bitblockins-landingpage",
+  "name": "block-explorer",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.13",
+    "axios": "^1.12.2",
     "framer-motion": "^12.23.12",
     "lucide-react": "^0.542.0",
     "primeflex": "^4.0.0",
@@ -21,6 +22,7 @@
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.9.1",
     "react-typewriter-effect": "^1.1.0",
+    "recharts": "^3.2.0",
     "tailwindcss": "^4.1.13"
   },
   "devDependencies": {

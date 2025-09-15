@@ -21,7 +21,7 @@ export const routes = [
     dropdown: [
       { name: "Leaderboard", path: "/validators/leaderboard", icon: FaList },
       { name: "Set Info", path: "/validators/info", icon: FaFileAlt },
-      { name: "Delegators", path: "/validators/delegators", icon: FaUsers },
+      // { name: "Delegators", path: "/validators/delegators", icon: FaUsers },
     ],
   },
   {
@@ -30,8 +30,8 @@ export const routes = [
     icon: FaCoins,
     dropdown: [
       { name: "Top Tokens", path: "/tokens/top", icon: FaCoins },
-      { name: "Transfers", path: "/tokens/transfers", icon: FaDatabase },
-      { name: "Create Token", path: "/tokens/create", icon: FaFileAlt },
+      { name: "Token Transfers", path: "/tokens/transfers", icon: FaDatabase },
+      // { name: "Create Token", path: "/tokens/create", icon: FaFileAlt },
     ],
   },
 ];
