@@ -89,7 +89,7 @@ const Navbar = () => {
                 // Non-navigating button for dropdown items
                 <button
                   onClick={() => toggleDropdown(index)}
-                  className={`flex items-center space-x-2 text-black hover:text-blue-600 transition duration-300 py-2 px-4 lg:px-0 ${isDropdownOpen === index ? "text-blue-600 font-bold" : ""
+                  className={`flex items-center space-x-2 text-black hover:text-blue-600 transition duration-300 py-2 px-4 lg:px-0 ${isDropdownOpen === index ? "text-blue-600 " : ""
                     }`}
                 >
                   <item.icon />
@@ -105,7 +105,7 @@ const Navbar = () => {
                     setIsDropdownOpen(null);
                   }}
                   className={({ isActive }) =>
-                    `flex items-center space-x-2 text-black transition duration-300 py-2 px-4 lg:px-0  hover:text-blue-600 ${isActive ? "text-blue-600 font-bold " : ""
+                    `flex items-center space-x-2 text-black transition duration-300 py-2 px-4 lg:px-0  hover:text-blue-600 ${isActive ? "text-blue-600 " : ""
                     }`
                   }
                 >
