@@ -30,7 +30,7 @@ const Home = () => {
     <div className="w-full bg-white text-gray-700 font-sans p-3">
       {/* Header */}
       <header className="bg-white p-4 flex items-center justify-between">
-        <h1 className="text-xl font-bold">BNB Smart Chain Explorer</h1>
+        <h1 className="text-xl font-bold">CBM Smart Chain Explorer</h1>
       </header>
 
       {/* Search Bar Section */}
@@ -119,14 +119,14 @@ const Home = () => {
         {/* Market Cap */}
         <div className="bg-white p-4 rounded-md">
           <div className="flex items-center">
-            <span className="text-blue-400">🌍 BNB MARKET CAP ON BSC</span>
+            <span className="text-blue-400">🌍 CBM MARKET CAP </span>
           </div>
           <span className="text-lg font-bold">{stats.marketCap.value} ({stats.marketCap.supply})</span>
         </div>
 
         {/* Transaction History Chart */}
         <div className="bg-white p-4 rounded-md">
-          <h3 className="text-lg font-bold mb-2">BNB SMART CHAIN Transaction History in 14 days</h3>
+          <h3 className="text-lg font-bold mb-2">CBM SMART CHAIN Transaction History in 14 days</h3>
           <div className="h-32 bg-gray-600 rounded-md flex items-center justify-center text-gray-800">
             {/* Placeholder for chart - In real app, use Recharts or similar */}
             Loading Chart...
@@ -187,7 +187,7 @@ const Home = () => {
 
       {/* Footer Placeholder */}
       <footer className="p-4 bg-gray-800 text-center text-gray-800 border-t border-gray-700">
-        © 2025 BNB Smart Chain Explorer
+        © 2025 CBM Smart Chain Explorer
       </footer>
     </div>
   );
