@@ -3,8 +3,8 @@ import React from "react";
 const TransactionDetails = () => {
     // Transaction details data
     const transaction = {
-        transactionAction: "Transfer 0.0009831489 BNB ($0.33) to BSC System Reward",
-        burn: "0.0009830833 BNB ($0.34)",
+        transactionAction: "Transfer 0.0009831489 CBM ($0.33) to BSC System Reward",
+        burn: "0.0009830833 CBM ($0.34)",
         transactionHash: "0xb0c0a9f3c0e02531d26d73a8c51ae265e5ef143b8d9f",
         status: "Success",
         block: 61243509,
@@ -16,23 +16,23 @@ const TransactionDetails = () => {
             transfers: [
                 {
                     type: "Transfer",
-                    amount: "0.0009831489 BNB ($0.33)",
+                    amount: "0.0009831489 CBM ($0.33)",
                     from: "BSC Validator Set",
                     to: "BSC System Reward",
                 },
                 {
                     type: "Transfer",
-                    amount: "0.0009830833 BNB ($0.34)",
+                    amount: "0.0009830833 CBM ($0.34)",
                     from: "BSC Validator Set",
                     to: "Null 0x00...dEA0",
                 },
             ],
         },
-        value: "0.0009838334 BNB ($0.34)",
-        transactionFee: "0 BNB ($0.00)",
-        gasPrice: "0 BNB",
+        value: "0.0009838334 CBM ($0.34)",
+        transactionFee: "0 CBM ($0.00)",
+        gasPrice: "0 CBM",
         gasLimitUsageByTime: "9,223,372,036,854,775,807 (53.34%)",
-        burntFees: "0.0009838334 BNB ($0.34)",
+        burntFees: "0.0009838334 CBM ($0.34)",
         otherAttributes: {
             nonce: "52664",
             positionInBlock: "149",

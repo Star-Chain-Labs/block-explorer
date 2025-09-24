@@ -9,8 +9,8 @@ const Blocks = () => {
   const statsData = [
     { title: "Network Utilization", value: "25.5% (24h)" },
     { title: "Block Size", value: "84,901 Bytes" },
-    { title: "Block Rewards", value: "540.41 BNB (24h)" },
-    { title: "Burnt Fees", value: "268,512.44 BNB" },
+    { title: "Block Rewards", value: "540.41 CBM (24h)" },
+    { title: "Burnt Fees", value: "268,512.44 CBM" },
   ];
 
   // Transaction table data (adapted from image)
@@ -23,8 +23,8 @@ const Blocks = () => {
       validator: "Feynman",
       gasUsed: "18,904,557 (25%)",
       gasLimit: "75,000,000",
-      reward: "0.00228 BNB",
-      burntFees: "0 BNB",
+      reward: "0.00228 CBM",
+      burntFees: "0 CBM",
     },
     {
       block: "61147788",
@@ -34,8 +34,8 @@ const Blocks = () => {
       validator: "Feynman",
       gasUsed: "14,425,385 (19%)",
       gasLimit: "75,000,000",
-      reward: "0.00313 BNB",
-      burntFees: "0.00031 BNB",
+      reward: "0.00313 CBM",
+      burntFees: "0.00031 CBM",
     },
     {
       block: "61147787",
@@ -45,8 +45,8 @@ const Blocks = () => {
       validator: "Feynman",
       gasUsed: "23,766,467 (32%)",
       gasLimit: "75,000,000",
-      reward: "0.00375 BNB",
-      burntFees: "0.00037 BNB",
+      reward: "0.00375 CBM",
+      burntFees: "0.00037 CBM",
     },
     {
       block: "61147786",
@@ -56,8 +56,8 @@ const Blocks = () => {
       validator: "Feynman",
       gasUsed: "50,562,716 (67%)",
       gasLimit: "75,000,000",
-      reward: "0.00625 BNB",
-      burntFees: "0.00063 BNB",
+      reward: "0.00625 CBM",
+      burntFees: "0.00063 CBM",
     },
     {
       block: "61147785",
@@ -67,8 +67,8 @@ const Blocks = () => {
       validator: "Feynman",
       gasUsed: "21,560,290 (29%)",
       gasLimit: "75,000,000",
-      reward: "0.00403 BNB",
-      burntFees: "0.0004 BNB",
+      reward: "0.00403 CBM",
+      burntFees: "0.0004 CBM",
     },
     {
       block: "61147784",
@@ -78,8 +78,8 @@ const Blocks = () => {
       validator: "Feynman",
       gasUsed: "21,611,503 (29%)",
       gasLimit: "75,000,000",
-      reward: "0.00326 BNB",
-      burntFees: "0.00032 BNB",
+      reward: "0.00326 CBM",
+      burntFees: "0.00032 CBM",
     },
     {
       block: "61147783",
@@ -89,8 +89,8 @@ const Blocks = () => {
       validator: "Feynman",
       gasUsed: "17,563,660 (23%)",
       gasLimit: "75,000,000",
-      reward: "0.00304 BNB",
-      burntFees: "0.0003 BNB",
+      reward: "0.00304 CBM",
+      burntFees: "0.0003 CBM",
     },
   ];
 

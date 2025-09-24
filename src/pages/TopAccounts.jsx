@@ -8,7 +8,7 @@ const TopAccounts = () => {
   // Stats data (cards) based on image data
   const statsData = [
     { title: "Total Accounts", value: "1,999,999" },
-    { title: "Total BNB Balance", value: "150,402,483.66 BNB" },
+    { title: "Total CBM Balance", value: "150,402,483.66 CBM" },
     { title: "Top Accounts Shown", value: "10,000" },
   ];
 
@@ -17,70 +17,70 @@ const TopAccounts = () => {
     {
       address: "0xF3f4285...0418ACd43",
       nameTag: "",
-      balance: "29,880,000.15364949 BNB",
+      balance: "29,880,000.15364949 CBM",
       percentage: "19.87201237%",
       txnCount: "79",
     },
     {
       address: "0x0000000...00001004",
       nameTag: "BSC: Token Hub",
-      balance: "26,004,077.34566132 BNB",
+      balance: "26,004,077.34566132 CBM",
       percentage: "-",
       txnCount: "5,605,069",
     },
     {
       address: "0xBE0eB53F...240d433E8",
       nameTag: "Binance #",
-      balance: "17,195,730.35988322 BNB",
+      balance: "17,195,730.35988322 CBM",
       percentage: "11.43314255%",
       txnCount: "834",
     },
     {
       address: "0xD37c9B07...5A9aA07CA",
       nameTag: "",
-      balance: "11,666,888.05143963 BNB",
+      balance: "11,666,888.05143963 CBM",
       percentage: "7.75711130%",
       txnCount: "43",
     },
     {
       address: "0xF9f7814e...9741aCeC",
       nameTag: "Binance: Hot Wallet 20",
-      balance: "10,490,481.95626622 BNB",
+      balance: "10,490,481.95626622 CBM",
       percentage: "6.97499391%",
       txnCount: "11,478",
     },
     {
       address: "0x0000000...0000DEaD",
       nameTag: "Null: 0x00...DEaD",
-      balance: "10,471,150.0325872 BNB",
+      balance: "10,471,150.0325872 CBM",
       percentage: "6.96209184%",
       txnCount: "25,130",
     },
     {
       address: "0x77114c69...976a9a2E",
       nameTag: "",
-      balance: "8,000,555.9875813 BNB",
+      balance: "8,000,555.9875813 CBM",
       percentage: "5.31943077%",
       txnCount: "40",
     },
     {
       address: "0x9EF34a9E...D562C787",
       nameTag: "",
-      balance: "7,999,999.91897 BNB",
+      balance: "7,999,999.91897 CBM",
       percentage: "5.31906109%",
       txnCount: "38",
     },
     {
       address: "0x5c0D693B...B86ed194",
       nameTag: "",
-      balance: "6,888,887.9919716 BNB",
+      balance: "6,888,887.9919716 CBM",
       percentage: "4.58030202%",
       txnCount: "40",
     },
     {
       address: "0x0039542...34d5318C9",
       nameTag: "",
-      balance: "3,252,309.02003343 BNB",
+      balance: "3,252,309.02003343 CBM",
       percentage: "2.16240380%",
       txnCount: "48",
     },
@@ -107,7 +107,7 @@ const TopAccounts = () => {
       </div>
 
       {/* Transaction Section Header */}
-      <div className="p-4 text-2xl font-bold text-gray-800">Top Accounts by BNB Balance</div>
+      <div className="p-4 text-2xl font-bold text-gray-800">Top Accounts by CBM Balance</div>
 
       {/* Transaction Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">

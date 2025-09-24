@@ -147,8 +147,8 @@ const Home = () => {
     transactions: { total: '8,889.26M', tps: '188.7 TPS' },
     medGasPrice: { value: '0.1 Gwei', usd: '< $0.01' },
     latestBlock: { number: 61145328, time: '0.75s' },
-    votingPower: '25,885,289.56 BNB',
-    marketCap: { value: '$39,972,145,681.00', supply: '150,404,848 BNB' }
+    votingPower: '25,885,289.56 CBM',
+    marketCap: { value: '$39,972,145,681.00', supply: '150,404,848 CBM' }
   };
 
   return (
@@ -199,10 +199,10 @@ const Home = () => {
         <>
           {/* Stats Row */}
           <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 w-full mx-auto">
-            {/* BNB Price */}
+            {/* CBM Price */}
             <div className="bg-white border border-gray-300 p-4 rounded-lg shadow-md hover:shadow-lg transition duration-200">
               <div className="flex items-center justify-between">
-                <span className="text-yellow-400 font-semibold">◆ BNB PRICE</span>
+                <span className="text-yellow-400 font-semibold">◆ CBM PRICE</span>
                 <span className="text-sm text-gray-700">
                   ${stats.bnbPrice.value} @ 0.008071 BTC ({stats.bnbPrice.change}%)
                 </span>

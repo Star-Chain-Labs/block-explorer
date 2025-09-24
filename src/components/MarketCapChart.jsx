@@ -14,7 +14,7 @@ const MarketCapChart = () => {
     const stats = {
         marketCap: {
             value: 92000000000, // Current market cap: $92B
-            supply: '147,586,297 BNB', // Circulating supply
+            supply: '147,586,297 CBM', // Circulating supply
         },
         marketCapHistory: [
             { date: '2025-09-01', value: 10000000000 },

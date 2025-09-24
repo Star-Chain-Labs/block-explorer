@@ -11,7 +11,7 @@ const TopTokens = () => {
       rank: 1,
       token: "Binance-Peg Ethereum Token (ETH)",
       image: "https://via.placeholder.com/20/3c3c3d?text=E", // Ethereum placeholder
-      price: "$4,513.6149 BNB",
+      price: "$4,513.6149 CBM",
       change: "-3.20%",
       volume24h: "$35,836,246.536.00",
       circulatingMarketCap: "$544,814,270.948.00",
@@ -22,7 +22,7 @@ const TopTokens = () => {
       rank: 2,
       token: "Binance-Peg XRP Token (XRP)",
       image: "https://via.placeholder.com/20/000000?text=X", // XRP placeholder
-      price: "$2.9732 BNB",
+      price: "$2.9732 CBM",
       change: "-3.62%",
       volume24h: "$5,596,151.063.00",
       circulatingMarketCap: "$177,234,058.42.00",
@@ -33,7 +33,7 @@ const TopTokens = () => {
       rank: 3,
       token: "Binance-Peg BSC-USD (BSC-USD)",
       image: "https://via.placeholder.com/20/1a72e8?text=B", // BSC-USD placeholder
-      price: "$1.0098 BNB",
+      price: "$1.0098 CBM",
       change: "-0.03%",
       volume24h: "$94,270,536.68.00",
       circulatingMarketCap: "$170,316,202.876.00",
@@ -42,9 +42,9 @@ const TopTokens = () => {
     },
     {
       rank: 4,
-      token: "Thunder Wrapped BNB (BNB)",
-      image: "https://via.placeholder.com/20/ffd700?text=W", // Wrapped BNB placeholder
-      price: "$916.223 BNB",
+      token: "Thunder Wrapped CBM (CBM)",
+      image: "https://via.placeholder.com/20/ffd700?text=W", // Wrapped CBM placeholder
+      price: "$916.223 CBM",
       change: "-2.39%",
       volume24h: "$2,454,075.49.00",
       circulatingMarketCap: "$127,526,245.825.00",
@@ -53,9 +53,9 @@ const TopTokens = () => {
     },
     {
       rank: 5,
-      token: "Wrapped BNB (WBNB)",
-      image: "https://via.placeholder.com/20/ffd700?text=W", // Wrapped BNB placeholder
-      price: "$916.223 BNB",
+      token: "Wrapped CBM (WCBM)",
+      image: "https://via.placeholder.com/20/ffd700?text=W", // Wrapped CBM placeholder
+      price: "$916.223 CBM",
       change: "-2.39%",
       volume24h: "$2,454,075.49.00",
       circulatingMarketCap: "$127,526,245.825.00",
@@ -66,7 +66,7 @@ const TopTokens = () => {
       rank: 6,
       token: "Binance-Peg USD Coin (USDC)",
       image: "https://via.placeholder.com/20/2775c9?text=U", // USDC placeholder
-      price: "$0.9999 BNB",
+      price: "$0.9999 CBM",
       change: "+0.01%",
       volume24h: "$15,338,379.100.00",
       circulatingMarketCap: "$73,138,672.57.00",
@@ -77,7 +77,7 @@ const TopTokens = () => {
       rank: 7,
       token: "USDC (anyUSDC)",
       image: "https://via.placeholder.com/20/2775c9?text=U", // anyUSDC placeholder
-      price: "$0.9999 BNB",
+      price: "$0.9999 CBM",
       change: "+0.01%",
       volume24h: "$15,338,379.100.00",
       circulatingMarketCap: "$73,138,672.57.00",
@@ -88,7 +88,7 @@ const TopTokens = () => {
       rank: 8,
       token: "Binance-Peg Dogecoin Token (DOGE)",
       image: "https://via.placeholder.com/20/c2a633?text=D", // Dogecoin placeholder
-      price: "$0.262 BNB",
+      price: "$0.262 CBM",
       change: "-9.94%",
       volume24h: "$6,350,697.946.00",
       circulatingMarketCap: "$39,541,621.203.00",
@@ -99,7 +99,7 @@ const TopTokens = () => {
       rank: 9,
       token: "TRON (TRX)",
       image: "https://via.placeholder.com/20/17191d?text=T", // TRON placeholder
-      price: "$0.3462 BNB",
+      price: "$0.3462 CBM",
       change: "-1.06%",
       volume24h: "$738,962,456.00",
       circulatingMarketCap: "$32,779,967.86.00",
@@ -110,7 +110,7 @@ const TopTokens = () => {
       rank: 10,
       token: "Binance-Peg BUSD Token (BUSD)",
       image: "https://via.placeholder.com/20/1a72e8?text=B", // BUSD placeholder
-      price: "$0.867 BNB",
+      price: "$0.867 CBM",
       change: "-7.26%",
       volume24h: "$1,418,337.92.00",
       circulatingMarketCap: "$2,765,555.43.00",

@@ -4,9 +4,9 @@ import { Link } from 'react-router-dom';
 
 const LatestTransactions = () => {
     const latestTransactions = [
-        { hash: '0xc00a0a9e00xc00a0a9b', from: '0x45ac960x45ac960x45ac96e3d23f', to: '0x0000...001000', value: '0.039 BNB', timeAgo: '5 secs ago' },
-        { hash: '0xd460060f0xc00a0a9e0', from: '0x28092a...0c9c27', to: '0x4fe1bb...e97b48', value: '0 BNB', timeAgo: '5 secs ago' },
-        { hash: '0x65e5d4d0xc00a0a9e0f', from: '0xe58577...1ed2e7', to: '0x2460...something', value: '0.039 BNB', timeAgo: '5 secs ago' },
+        { hash: '0xc00a0a9e00xc00a0a9b', from: '0x45ac960x45ac960x45ac96e3d23f', to: '0x0000...001000', value: '0.039 CBM', timeAgo: '5 secs ago' },
+        { hash: '0xd460060f0xc00a0a9e0', from: '0x28092a...0c9c27', to: '0x4fe1bb...e97b48', value: '0 CBM', timeAgo: '5 secs ago' },
+        { hash: '0x65e5d4d0xc00a0a9e0f', from: '0xe58577...1ed2e7', to: '0x2460...something', value: '0.039 CBM', timeAgo: '5 secs ago' },
     ];
 
     return (

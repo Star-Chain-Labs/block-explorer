@@ -7,7 +7,7 @@ const ValidatorsLeaderboard = () => {
     {
       rank: 1,
       address: "Validator: Legend",
-      votingPower: "1.04,937 BNB",
+      votingPower: "1.04,937 CBM",
       firstBlock: 3798133,
       lastBlock: 61235087,
       day1: 5120,
@@ -18,7 +18,7 @@ const ValidatorsLeaderboard = () => {
     {
       rank: 2,
       address: "Validator: TWSStaking",
-      votingPower: "1.03,708 BNB",
+      votingPower: "1.03,708 CBM",
       firstBlock: 3798135,
       lastBlock: 61235887,
       day1: 4920,
@@ -29,7 +29,7 @@ const ValidatorsLeaderboard = () => {
     {
       rank: 3,
       address: "Validator: fuji",
-      votingPower: "1.35,700 BNB",
+      votingPower: "1.35,700 CBM",
       firstBlock: 3798135,
       lastBlock: 61235919,
       day1: 5064,
@@ -40,7 +40,7 @@ const ValidatorsLeaderboard = () => {
     {
       rank: 4,
       address: "Validator: Figment",
-      votingPower: "1.20,122 BNB",
+      votingPower: "1.20,122 CBM",
       firstBlock: 3870010,
       lastBlock: 61235791,
       day1: 5232,
@@ -51,7 +51,7 @@ const ValidatorsLeaderboard = () => {
     {
       rank: 5,
       address: "Validator: NodeReal",
-      votingPower: "1.34,645 BNB",
+      votingPower: "1.34,645 CBM",
       firstBlock: 38297595,
       lastBlock: 61235743,
       day1: 4592,

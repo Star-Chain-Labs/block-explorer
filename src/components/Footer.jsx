@@ -12,10 +12,10 @@ const Footer = () => {
           <div className="">
             <div className="flex items-center gap-2 mb-2">
               <SiBnbchain className="text-yellow-400 size-7" />
-              <span className=" text-xl">Powered By BNB Smart Chain</span>
+              <span className=" text-xl">Powered By CBM Smart Chain</span>
             </div>
             <p className="text-gray-800 text-sm leading-relaxed mb-3">
-              CBM is a Block Explorer and Analytics Platform for BNB Smart
+              CBM is a Block Explorer and Analytics Platform for CBM Smart
               Chain.
             </p>
 

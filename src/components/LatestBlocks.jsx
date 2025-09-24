@@ -4,16 +4,16 @@ import { Link } from 'react-router-dom';
 
 const LatestBlocks = () => {
     const latestBlocks = [
-        { number: 61145328, timeAgo: '5 secs ago', validator: 'defibit', txns: '146 txns', txnsTime: '1 sec', fee: '0.00206 BNB' },
-        { number: 61145327, timeAgo: '5 secs ago', validator: 'defibit', txns: '151 txns', txnsTime: '1 sec', fee: '0.0049 BNB' },
-        { number: 61145326, timeAgo: '5 secs ago', validator: 'defibit', txns: '146 txns', txnsTime: '1 sec', fee: '0.00259 BNB' },
-        { number: 61145325, timeAgo: '5 secs ago', validator: 'defibit', txns: '102 txns', txnsTime: '1 sec', fee: '0.00217 BNB' },
-        { number: 61145324, timeAgo: '5 secs ago', validator: 'defibit', txns: '109 txns', txnsTime: '1 sec', fee: '0.00199 BNB' },
-        { number: 61145323, timeAgo: '5 secs ago', validator: 'defibit', txns: '106 txns', txnsTime: '1 sec', fee: '0.00444 BNB' },
-        { number: 61145325, timeAgo: '5 secs ago', validator: 'defibit', txns: '102 txns', txnsTime: '1 sec', fee: '0.00217 BNB' },
-        { number: 61145324, timeAgo: '5 secs ago', validator: 'defibit', txns: '109 txns', txnsTime: '1 sec', fee: '0.00199 BNB' },
-        { number: 61145323, timeAgo: '5 secs ago', validator: 'defibit', txns: '106 txns', txnsTime: '1 sec', fee: '0.00444 BNB' },
-        { number: 61145325, timeAgo: '5 secs ago', validator: 'defibit', txns: '102 txns', txnsTime: '1 sec', fee: '0.00217 BNB' },
+        { number: 61145328, timeAgo: '5 secs ago', validator: 'defibit', txns: '146 txns', txnsTime: '1 sec', fee: '0.00206 CBM' },
+        { number: 61145327, timeAgo: '5 secs ago', validator: 'defibit', txns: '151 txns', txnsTime: '1 sec', fee: '0.0049 CBM' },
+        { number: 61145326, timeAgo: '5 secs ago', validator: 'defibit', txns: '146 txns', txnsTime: '1 sec', fee: '0.00259 CBM' },
+        { number: 61145325, timeAgo: '5 secs ago', validator: 'defibit', txns: '102 txns', txnsTime: '1 sec', fee: '0.00217 CBM' },
+        { number: 61145324, timeAgo: '5 secs ago', validator: 'defibit', txns: '109 txns', txnsTime: '1 sec', fee: '0.00199 CBM' },
+        { number: 61145323, timeAgo: '5 secs ago', validator: 'defibit', txns: '106 txns', txnsTime: '1 sec', fee: '0.00444 CBM' },
+        { number: 61145325, timeAgo: '5 secs ago', validator: 'defibit', txns: '102 txns', txnsTime: '1 sec', fee: '0.00217 CBM' },
+        { number: 61145324, timeAgo: '5 secs ago', validator: 'defibit', txns: '109 txns', txnsTime: '1 sec', fee: '0.00199 CBM' },
+        { number: 61145323, timeAgo: '5 secs ago', validator: 'defibit', txns: '106 txns', txnsTime: '1 sec', fee: '0.00444 CBM' },
+        { number: 61145325, timeAgo: '5 secs ago', validator: 'defibit', txns: '102 txns', txnsTime: '1 sec', fee: '0.00217 CBM' },
     ];
 
 
