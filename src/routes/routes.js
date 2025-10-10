@@ -29,9 +29,9 @@ export const routes = [
     path: "/tokens",
     icon: FaCoins,
     dropdown: [
-      { name: "Top Tokens", path: "/tokens/top", icon: FaCoins },
+      { name: "Create Token", path: "/tokens/create", icon: FaFileAlt },
+      // { name: "Top Tokens", path: "/tokens/top", icon: FaCoins },
       { name: "Token Transfers", path: "/tokens/transfers", icon: FaDatabase },
-      // { name: "Create Token", path: "/tokens/create", icon: FaFileAlt },
     ],
   },
 ];

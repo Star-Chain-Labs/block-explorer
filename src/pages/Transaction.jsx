@@ -140,7 +140,7 @@ const Transaction = () => {
   ];
 
   return (
-    <div className="min-h-screen w-full bg-white text-black shadow">
+    <div className="min-h-screen w-full bg-white text-black shadow md:p-5">
       {/* Search Bar */}
       <div className="p-4 border-b border-gray-200">
         <input

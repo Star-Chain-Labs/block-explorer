@@ -109,7 +109,7 @@ const TokenTransfer = () => {
     ];
 
     return (
-        <div className="min-h-screen w-full bg-white text-black shadow p-4">
+        <div className="min-h-screen w-full bg-white text-black shadow md:p-5   ">
             <h1 className="text-2xl font-bold mb-4">Token Transfers (BEP-20)</h1>
             <Table columns={tableColumns} data={transferData} />
         </div>
