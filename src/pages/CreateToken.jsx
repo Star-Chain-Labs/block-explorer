@@ -945,7 +945,7 @@ const CreateToken = () => {
 
                       {/* View on Explorer Button */}
                       <a
-                        href={`https://cbmscan.com/tx/${txHash}`}
+                        // href={`https://cbmscan.com/tx/${txHash}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center justify-center gap-2 w-full py-3.5 sm:py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] text-sm sm:text-base"

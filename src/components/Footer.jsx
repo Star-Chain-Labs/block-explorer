@@ -5,7 +5,6 @@ import { SiBnbchain } from "react-icons/si";
 import metaimg from "../assets/metamask.png";
 
 const Footer = () => {
-  // ✅ Add your CBM local network in MetaMask
   const addCBMNetwork = async () => {
     if (window.ethereum) {
       try {
@@ -13,15 +12,15 @@ const Footer = () => {
           method: "wallet_addEthereumChain",
           params: [
             {
-              chainId: "0x181CD", // 98765 in hexadecimal ✅
-              chainName: "CBM Local Network",
+              chainId: "0x2C2",
+              chainName: "CBM Network",
               nativeCurrency: {
                 name: "CBM",
                 symbol: "CBM",
                 decimals: 18,
               },
-              rpcUrls: ["http://127.0.0.1:8545"], // ✅ Local RPC
-              blockExplorerUrls: ["http://localhost:3000"], // Optional: tu apne explorer ka local URL yahan de sakta hai
+              rpcUrls: ["https://rpc.cbmscan.com"],
+              blockExplorerUrls: ["https://cbmscan.com"],
             },
           ],
         });

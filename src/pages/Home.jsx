@@ -239,7 +239,7 @@ const Home = memo(({ navigate, searchQuery, setSearchQuery }) => {
 
   useEffect(() => {
     fetchChainData();
-    const interval = setInterval(fetchChainData, 8000);
+    const interval = setInterval(fetchChainData, 3600000);
     return () => clearInterval(interval);
   }, [fetchChainData]);
 
@@ -324,7 +324,7 @@ const Home = memo(({ navigate, searchQuery, setSearchQuery }) => {
                     Latest Blocks
                   </h2>
                   <button
-                    onClick={navigateToBlocks}
+                    onClick={() => navigate("/blockchain/blocks")}
                     className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                   >
                     View All Blocks →
@@ -343,7 +343,7 @@ const Home = memo(({ navigate, searchQuery, setSearchQuery }) => {
                     Latest Transactions
                   </h2>
                   <button
-                    onClick={navigateToTransactions}
+                    onClick={() => navigate("/blockchain/transactions")}
                     className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                   >
                     View All Transactions →
