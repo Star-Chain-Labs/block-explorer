@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { ethers } from "ethers";
 
 const LatestTransactions = () => {
   const [transactions, setTransactions] = useState([]);
@@ -7,29 +6,15 @@ const LatestTransactions = () => {
 
   const fetchTransactions = async () => {
     try {
-      const provider = new ethers.JsonRpcProvider("https://rpc.cbmscan.com/");
+      setLoading(true);
+      const res = await fetch("https://api.cbmscan.com/api/transactions/data");
+      const data = await res.json();
 
-      const latestBlockNumber = await provider.getBlockNumber();
-      const recentTxs = [];
-
-      // Check last 10 blocks for transactions
-      for (let i = latestBlockNumber; i > latestBlockNumber - 10; i--) {
-        const block = await provider.getBlock(i, true); // include txs
-        if (block && block.transactions.length > 0) {
-          block.transactions.forEach((tx) => {
-            recentTxs.push({
-              hash: tx.hash,
-              from: tx.from,
-              to: tx.to,
-              value: ethers.formatEther(tx.value),
-              block: tx.blockNumber,
-            });
-          });
-        }
+      if (data?.success && Array.isArray(data.data)) {
+        setTransactions(data.data.slice(0, 10));
+      } else {
+        console.error("Unexpected API response:", data);
       }
-
-      // Latest 10 transactions only
-      setTransactions(recentTxs.slice(0, 10));
     } catch (err) {
       console.error("Error fetching transactions:", err);
     } finally {
@@ -51,33 +36,39 @@ const LatestTransactions = () => {
 
       {loading ? (
         <p className="text-gray-500 text-sm">Loading transactions...</p>
+      ) : transactions.length === 0 ? (
+        <p className="text-gray-500 text-sm">No recent transactions found.</p>
       ) : (
-        <table className="w-full text-sm text-left">
-          <thead className="text-gray-500 border-b">
-            <tr>
-              <th className="py-2">Txn Hash</th>
-              <th>From</th>
-              <th>To</th>
-              <th>Value (ETH)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {transactions.map((tx) => (
-              <tr key={tx.hash} className="border-b hover:bg-gray-50">
-                <td className="py-2 text-blue-600 font-semibold truncate">
-                  {tx.hash.slice(0, 12)}...
-                </td>
-                <td className="truncate text-gray-700">
-                  {tx.from ? tx.from.slice(0, 10) + "..." : "—"}
-                </td>
-                <td className="truncate text-gray-700">
-                  {tx.to ? tx.to.slice(0, 10) + "..." : "—"}
-                </td>
-                <td className="text-gray-800">{tx.value}</td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead className="text-gray-600 border-b bg-gray-100">
+              <tr>
+                <th className="py-2 px-3">Txn Hash</th>
+                <th className="px-3">From</th>
+                <th className="px-3">To</th>
+                <th className="px-3">Value (CBM)</th>
+                <th className="px-3">Block</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {transactions.map((tx) => (
+                <tr key={tx.hash} className="border-b hover:bg-gray-50">
+                  <td className="py-2 px-3 text-blue-600 font-semibold truncate">
+                    {tx.hash.slice(0, 10)}...
+                  </td>
+                  <td className="px-3 text-gray-700 truncate">
+                    {tx.from ? tx.from.slice(0, 10) + "..." : "—"}
+                  </td>
+                  <td className="px-3 text-gray-700 truncate">
+                    {tx.to ? tx.to.slice(0, 10) + "..." : "—"}
+                  </td>
+                  <td className="px-3 text-gray-800">{tx.value}</td>
+                  <td className="px-3 text-gray-600">{tx.blockNumber}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

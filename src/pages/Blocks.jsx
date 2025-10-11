@@ -1,100 +1,73 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { ethers } from "ethers";
 import "primereact/resources/themes/lara-light-blue/theme.css";
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
 import Table from "../components/Table";
 
 const Blocks = () => {
-  // Stats data (cards) based on image data
-  const statsData = [
-    { title: "Network Utilization", value: "25.5% (24h)" },
-    { title: "Block Size", value: "84,901 Bytes" },
-    { title: "Block Rewards", value: "540.41 CBM (24h)" },
-    { title: "Burnt Fees", value: "268,512.44 CBM" },
-  ];
+  const [blocks, setBlocks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
 
-  // Transaction table data (adapted from image)
-  const transactionData = [
-    {
-      block: "61147789",
-      age: "4 secs ago",
-      blobs: "-",
-      txn: "130",
-      validator: "Feynman",
-      gasUsed: "18,904,557 (25%)",
-      gasLimit: "75,000,000",
-      reward: "0.00228 CBM",
-      burntFees: "0 CBM",
-    },
-    {
-      block: "61147788",
-      age: "5 secs ago",
-      blobs: "-",
-      txn: "115",
-      validator: "Feynman",
-      gasUsed: "14,425,385 (19%)",
-      gasLimit: "75,000,000",
-      reward: "0.00313 CBM",
-      burntFees: "0.00031 CBM",
-    },
-    {
-      block: "61147787",
-      age: "5 secs ago",
-      blobs: "-",
-      txn: "128",
-      validator: "Feynman",
-      gasUsed: "23,766,467 (32%)",
-      gasLimit: "75,000,000",
-      reward: "0.00375 CBM",
-      burntFees: "0.00037 CBM",
-    },
-    {
-      block: "61147786",
-      age: "6 secs ago",
-      blobs: "1 (17%)",
-      txn: "115",
-      validator: "Feynman",
-      gasUsed: "50,562,716 (67%)",
-      gasLimit: "75,000,000",
-      reward: "0.00625 CBM",
-      burntFees: "0.00063 CBM",
-    },
-    {
-      block: "61147785",
-      age: "7 secs ago",
-      blobs: "-",
-      txn: "140",
-      validator: "Feynman",
-      gasUsed: "21,560,290 (29%)",
-      gasLimit: "75,000,000",
-      reward: "0.00403 CBM",
-      burntFees: "0.0004 CBM",
-    },
-    {
-      block: "61147784",
-      age: "8 secs ago",
-      blobs: "-",
-      txn: "134",
-      validator: "Feynman",
-      gasUsed: "21,611,503 (29%)",
-      gasLimit: "75,000,000",
-      reward: "0.00326 CBM",
-      burntFees: "0.00032 CBM",
-    },
-    {
-      block: "61147783",
-      age: "8 secs ago",
-      blobs: "-",
-      txn: "166",
-      validator: "Feynman",
-      gasUsed: "17,563,660 (23%)",
-      gasLimit: "75,000,000",
-      reward: "0.00304 CBM",
-      burntFees: "0.0003 CBM",
-    },
-  ];
+  const RPC_URL = "https://rpc.cbmscan.com";
 
-  // Table columns
+  // fetch latest blocks dynamically
+  const fetchBlocks = async () => {
+    try {
+      const provider = new ethers.JsonRpcProvider(RPC_URL);
+      const latestBlockNumber = await provider.getBlockNumber();
+
+      const blockPromises = [];
+      // last 10 blocks fetch kro
+      for (let i = 0; i < 10; i++) {
+        blockPromises.push(provider.getBlock(latestBlockNumber - i));
+      }
+
+      const fetchedBlocks = await Promise.all(blockPromises);
+
+      const formattedData = await Promise.all(
+        fetchedBlocks.map(async (block) => {
+          const blockDetails = await provider.getBlock(block.number);
+          const transactionsCount = blockDetails.transactions?.length || 0;
+
+          return {
+            block: block.number.toString(),
+            age: new Date(block.timestamp * 1000).toLocaleTimeString(),
+            blobs: "-",
+            txn: transactionsCount,
+            validator: block.miner || "Unknown",
+            gasUsed: block.gasUsed?.toString() || "0",
+            gasLimit: block.gasLimit?.toString() || "0",
+            reward: "0 CBM",
+            burntFees: "0 CBM",
+          };
+        })
+      );
+
+      setBlocks(formattedData);
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching blocks:", err);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBlocks();
+    const interval = setInterval(fetchBlocks, 15000); // auto-refresh every 15s
+    return () => clearInterval(interval);
+  }, []);
+
+  // filter logic
+  const filteredBlocks = blocks.filter(
+    (b) =>
+      b.block.includes(search) ||
+      b.validator.toLowerCase().includes(search.toLowerCase()) ||
+      b.gasUsed.includes(search)
+  );
+
+  // table columns
   const tableColumns = [
     { field: "block", header: "Block", minWidth: "120px" },
     { field: "age", header: "Age", minWidth: "150px" },
@@ -114,26 +87,50 @@ const Blocks = () => {
         <input
           type="text"
           placeholder="Search by block / validator / gas..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
           className="w-full p-2 bg-gray-50 text-black rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
-      {/* Transaction Section Header */}
-      <div className="p-4 text-2xl font-bold text-gray-800">Blockchain Blocks</div>
-
-      {/* Transaction Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
-        {statsData.map((item, index) => (
-          <div key={index} className="bg-white border border-gray-300 p-4 rounded-lg shadow">
-            <p className="text-gray-500 font-medium">{item.title}</p>
-            <p className="text-lg font-bold">{item.value}</p>
-          </div>
-        ))}
+      {/* Header */}
+      <div className="p-4 text-2xl font-bold text-gray-800">
+        Blockchain Blocks (Live)
       </div>
 
-      {/* Transaction Table */}
+      {/* Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
+        <div className="bg-white border border-gray-300 p-4 rounded-lg shadow">
+          <p className="text-gray-500 font-medium">Network</p>
+          <p className="text-lg font-bold">CBM Mainnet</p>
+        </div>
+        <div className="bg-white border border-gray-300 p-4 rounded-lg shadow">
+          <p className="text-gray-500 font-medium">Latest Block</p>
+          <p className="text-lg font-bold">
+            {blocks[0]?.block || "Loading..."}
+          </p>
+        </div>
+        <div className="bg-white border border-gray-300 p-4 rounded-lg shadow">
+          <p className="text-gray-500 font-medium">Transactions (Recent)</p>
+          <p className="text-lg font-bold">
+            {blocks.reduce((a, b) => a + b.txn, 0)} Txns
+          </p>
+        </div>
+        <div className="bg-white border border-gray-300 p-4 rounded-lg shadow">
+          <p className="text-gray-500 font-medium">Validators Seen</p>
+          <p className="text-lg font-bold">
+            {new Set(blocks.map((b) => b.validator)).size}
+          </p>
+        </div>
+      </div>
+
+      {/* Table */}
       <div className="p-4">
-        <Table columns={tableColumns} data={transactionData} />
+        {loading ? (
+          <div className="text-center text-gray-600">Fetching blocks...</div>
+        ) : (
+          <Table columns={tableColumns} data={filteredBlocks} />
+        )}
       </div>
     </div>
   );
