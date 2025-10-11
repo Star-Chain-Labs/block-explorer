@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa";
 import { MdOutlineArrowDropDown } from "react-icons/md";
 import { routes } from "../routes/routes";
+import logo from "../assets/robomine.jpg";
 
 const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(null);
@@ -67,7 +68,7 @@ const Navbar = () => {
         {/* Left - Logo */}
         <div className="flex items-center gap-2">
           <img
-            src="/robomine.jpg"
+            src={logo}
             alt="logo"
             className="w-14 h-14 object-cover"
           />

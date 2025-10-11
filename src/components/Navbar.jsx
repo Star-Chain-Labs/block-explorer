@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa";
 import { MdOutlineArrowDropDown } from "react-icons/md";
 import { routes } from "../routes/routes";
+import logo from "../assets/robomine.jpg";
 
 const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(null);
@@ -62,15 +63,11 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 w-full bg-white text-black shadow-md z-40 border-b border-gray-200">
+    <nav className="fixed  top-0 left-0 w-full bg-white text-black shadow-md z-40 border-b border-gray-200">
       <div className="w-full mx-auto flex justify-between items-center px-4 py-5 sm:px-6 lg:px-8">
         {/* Left - Logo */}
         <div className="flex items-center gap-2">
-          <img
-            src="/robomine.jpg"
-            alt="logo"
-            className="w-14 h-14 object-cover"
-          />
+          <img src={logo} alt="logo" className="w-14 h-14 object-cover" />
           <div className="flex flex-col">
             <span className="text-black font-bold text-xl">
               CBM BlockExplorer

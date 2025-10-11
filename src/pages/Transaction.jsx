@@ -7,7 +7,7 @@ const LatestTransactions = () => {
 
   const fetchTransactions = async () => {
     try {
-      const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545");
+      const provider = new ethers.JsonRpcProvider("https://rpc.cbmscan.com/");
 
       const latestBlockNumber = await provider.getBlockNumber();
       const recentTxs = [];

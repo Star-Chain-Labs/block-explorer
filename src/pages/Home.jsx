@@ -108,12 +108,12 @@ const Home = memo(({ navigate, searchQuery, setSearchQuery }) => {
     totalBlocks: 0,
     totalTransactions: 0,
     totalGasFee: "0",
-    bnbPrice: 10.0,
+    bnbPrice: 100.0,
     tps: "0",
     medGasPrice: "0",
-    blockTime: "0",
-    votingPower: "25,885,289.56 CBM",
-    marketCap: "$39,972,145,681.00",
+    // blockTime: "0",
+    // votingPower: "25,885,289.56 CBM",
+    // marketCap: "$39,972,145,681.00",
   });
 
   const [latestBlocks, setLatestBlocks] = useState([]);
@@ -220,7 +220,7 @@ const Home = memo(({ navigate, searchQuery, setSearchQuery }) => {
         totalBlocks: latestBlockNumber,
         totalTransactions: totalTxCount,
         totalGasFee: ethers.formatEther(totalGas),
-        bnbPrice: 10.0,
+        bnbPrice: 100.0,
         tps,
         medGasPrice: parseFloat(medGasGwei).toFixed(2),
         blockTime,
@@ -359,10 +359,6 @@ const Home = memo(({ navigate, searchQuery, setSearchQuery }) => {
           </>
         )}
       </div>
-
-      <footer className="mt-16 py-6 bg-white border-t border-gray-200 text-center text-gray-600">
-        © 2025 CBM BlockExplorer - Powered by Ethereum RPC
-      </footer>
     </div>
   );
 });
