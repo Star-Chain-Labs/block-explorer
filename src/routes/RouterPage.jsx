@@ -15,6 +15,8 @@ import SignUp from "../components/SignUp";
 import ForgetPassword from "../components/ForgetPassword";
 import TokenTransfer from "../pages/TokenTransfer";
 import TransactionDetails from "../pages/TransactionDetails";
+import AllTokens from "../pages/AllTokens";
+import VerifyToken from "../pages/VerifyToken";
 
 export default function RouterPage() {
   return (
@@ -23,15 +25,23 @@ export default function RouterPage() {
         <Route path="/" element={<Home />} />
         <Route path="/blockchain/transactions" element={<Transaction />} />
         <Route path="/blockchain/blocks" element={<Blocks />} />
+        <Route path="/tokens/token-list" element={<AllTokens />} />
         <Route path="/blockchain/accounts" element={<TopAccounts />} />
         <Route path="/blockchain/contracts" element={<Contracts />} />
-        <Route path="/validators/leaderboard" element={<ValidatorsLeaderboard />} />
+        <Route path="/tokens/verify" element={<VerifyToken />} />
+        <Route
+          path="/validators/leaderboard"
+          element={<ValidatorsLeaderboard />}
+        />
         <Route path="/validators/info" element={<ValidatorsInfo />} />
         <Route path="/validators/delegators" element={<Delegators />} />
         <Route path="/tokens/top" element={<TopTokens />} />
         <Route path="/tokens/transfers" element={<TokenTransfer />} />
         <Route path="/tokens/create" element={<CreateToken />} />
-        <Route path="/blockchain/transaction-details" element={<TransactionDetails />} />
+        <Route
+          path="/blockchain/transaction-details"
+          element={<TransactionDetails />}
+        />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/forget-password" element={<ForgetPassword />} />

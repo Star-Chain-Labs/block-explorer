@@ -7,9 +7,9 @@ import Header from "../components/Header";
 export const MainLayout = () => {
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
+      {/* <Header /> */}
       <Navbar />
-      <main className="flex-1 bg-gray-50 md:pt-36 pt-22 ">
+      <main className="flex-1 bg-gray-50 md:pt-24 pt-24 ">
         <Outlet />
       </main>
       <Footer />
