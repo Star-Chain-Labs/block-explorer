@@ -9,7 +9,7 @@ const AllTokens = () => {
     const fetchTokens = async () => {
       try {
         const res = await fetch(
-          "http://localhost:8080/api/token/get-all-tokens"
+          "https://api.cbmscan.com/api/token/get-all-tokens"
         );
         const data = await res.json();
         if (data.success) {
@@ -139,4 +139,3 @@ const AllTokens = () => {
 };
 
 export default AllTokens;
-

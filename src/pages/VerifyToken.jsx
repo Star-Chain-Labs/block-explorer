@@ -16,7 +16,9 @@ const VerifyToken = () => {
     setLoading(true);
     setMsg("");
     try {
-      const res = await fetch("http://localhost:8080/api/token/get-all-tokens");
+      const res = await fetch(
+        "https://api.cbmscan.com/api/token/get-all-tokens"
+      );
       const data = await res.json();
 
       if (data.success) {
@@ -47,7 +49,7 @@ const VerifyToken = () => {
     setMsg("");
 
     try {
-      const res = await fetch("http://localhost:8080/api/token/verify-auto", {
+      const res = await fetch("https://api.cbmscan.com/api/token/verify-auto", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
