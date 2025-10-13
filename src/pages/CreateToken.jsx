@@ -546,7 +546,7 @@ const CreateToken = () => {
       console.log("✅ Token deployed:", address);
       console.log("Tx Hash:", tx.hash);
 
-      await fetch("https:/api/cbmscan.com/api/token/token-create", {
+      await fetch("https:///api.cbmscan.com/api/token/token-create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
