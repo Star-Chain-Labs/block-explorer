@@ -127,12 +127,17 @@ const Contracts = () => {
       </div>
 
       {/* Contracts Section Header */}
-      <div className="p-4 text-2xl font-bold text-gray-800">Verified Contracts</div>
+      <div className="p-4 text-2xl font-bold text-gray-800">
+        Verified Contracts
+      </div>
 
       {/* Contracts Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
         {statsData.map((item, index) => (
-          <div key={index} className="bg-white border border-gray-300 p-4 rounded-lg shadow">
+          <div
+            key={index}
+            className="bg-white border border-gray-300 p-4 rounded-lg shadow"
+          >
             <p className="text-gray-500 font-medium">{item.title}</p>
             <p className="text-lg font-bold">{item.value}</p>
           </div>

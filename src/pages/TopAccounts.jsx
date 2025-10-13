@@ -1,90 +1,21 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "primereact/resources/themes/lara-light-blue/theme.css";
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
 import Table from "../components/Table";
 
 const TopAccounts = () => {
-  // Stats data (cards) based on image data
-  const statsData = [
-    { title: "Total Accounts", value: "1,999,999" },
-    { title: "Total CBM Balance", value: "150,402,483.66 CBM" },
-    { title: "Top Accounts Shown", value: "10,000" },
-  ];
+  const [accountData, setAccountData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // Account table data (adapted from image)
-  const accountData = [
-    {
-      address: "0xF3f4285...0418ACd43",
-      nameTag: "",
-      balance: "29,880,000.15364949 CBM",
-      percentage: "19.87201237%",
-      txnCount: "79",
-    },
-    {
-      address: "0x0000000...00001004",
-      nameTag: "BSC: Token Hub",
-      balance: "26,004,077.34566132 CBM",
-      percentage: "-",
-      txnCount: "5,605,069",
-    },
-    {
-      address: "0xBE0eB53F...240d433E8",
-      nameTag: "Binance #",
-      balance: "17,195,730.35988322 CBM",
-      percentage: "11.43314255%",
-      txnCount: "834",
-    },
-    {
-      address: "0xD37c9B07...5A9aA07CA",
-      nameTag: "",
-      balance: "11,666,888.05143963 CBM",
-      percentage: "7.75711130%",
-      txnCount: "43",
-    },
-    {
-      address: "0xF9f7814e...9741aCeC",
-      nameTag: "Binance: Hot Wallet 20",
-      balance: "10,490,481.95626622 CBM",
-      percentage: "6.97499391%",
-      txnCount: "11,478",
-    },
-    {
-      address: "0x0000000...0000DEaD",
-      nameTag: "Null: 0x00...DEaD",
-      balance: "10,471,150.0325872 CBM",
-      percentage: "6.96209184%",
-      txnCount: "25,130",
-    },
-    {
-      address: "0x77114c69...976a9a2E",
-      nameTag: "",
-      balance: "8,000,555.9875813 CBM",
-      percentage: "5.31943077%",
-      txnCount: "40",
-    },
-    {
-      address: "0x9EF34a9E...D562C787",
-      nameTag: "",
-      balance: "7,999,999.91897 CBM",
-      percentage: "5.31906109%",
-      txnCount: "38",
-    },
-    {
-      address: "0x5c0D693B...B86ed194",
-      nameTag: "",
-      balance: "6,888,887.9919716 CBM",
-      percentage: "4.58030202%",
-      txnCount: "40",
-    },
-    {
-      address: "0x0039542...34d5318C9",
-      nameTag: "",
-      balance: "3,252,309.02003343 CBM",
-      percentage: "2.16240380%",
-      txnCount: "48",
-    },
-  ];
+  // Card stats
+  const [statsData, setStatsData] = useState([
+    { title: "Total Accounts", value: "Loading..." },
+    { title: "Total CBM Balance", value: "Loading..." },
+    { title: "Top Accounts Shown", value: "Loading..." },
+  ]);
 
   // Table columns
   const tableColumns = [
@@ -95,33 +26,102 @@ const TopAccounts = () => {
     { field: "txnCount", header: "Txn Count", minWidth: "120px" },
   ];
 
+  // 🔥 Fetch accounts data from backend
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      try {
+        const res = await fetch(
+          "http://localhost:8080/api/transactions/get-top-accounts"
+        );
+        const data = await res.json();
+
+        if (Array.isArray(data.accounts)) {
+          // Format data for the table
+          const formatted = data.accounts.map((acc, i) => ({
+            address: acc.address,
+            nameTag: acc.nameTag || "-",
+            balance: `${parseFloat(acc.balance).toFixed(4)} CBM`,
+            percentage: acc.percentage || "-",
+            txnCount: acc.txnCount?.toLocaleString() || "0",
+          }));
+
+          setAccountData(formatted);
+          setFilteredData(formatted);
+
+          // Update cards
+          setStatsData([
+            {
+              title: "Total Accounts",
+              value: data.totalAccounts?.toLocaleString() || formatted.length,
+            },
+            {
+              title: "Total CBM Balance",
+              value: `${data.totalBalance || "0"} CBM`,
+            },
+            { title: "Top Accounts Shown", value: formatted.length },
+          ]);
+        }
+      } catch (error) {
+        console.error("❌ Error fetching top accounts:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAccounts();
+  }, []);
+
+  // 🔍 Search functionality
+  useEffect(() => {
+    const filtered = accountData.filter(
+      (acc) =>
+        acc.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        acc.nameTag.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        acc.balance.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredData(filtered);
+  }, [searchTerm, accountData]);
+
   return (
     <div className="min-h-screen w-full bg-white text-black shadow md:p-5">
-      {/* Search Bar */}
+      {/* 🔍 Search Bar */}
       <div className="p-4 border-b border-gray-200">
         <input
           type="text"
           placeholder="Search by address / name / balance..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full p-2 bg-gray-50 text-black rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
-      {/* Transaction Section Header */}
-      <div className="p-4 text-2xl font-bold text-gray-800">Top Accounts by CBM Balance</div>
+      {/* 🧾 Section Header */}
+      <div className="p-4 text-2xl font-bold text-gray-800">
+        Top Accounts by CBM Balance
+      </div>
 
-      {/* Transaction Stats Cards */}
+      {/* 📊 Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
         {statsData.map((item, index) => (
-          <div key={index} className="bg-white border border-gray-300 p-4 rounded-lg shadow">
+          <div
+            key={index}
+            className="bg-white border border-gray-300 p-4 rounded-lg shadow hover:shadow-lg transition-shadow"
+          >
             <p className="text-gray-500 font-medium">{item.title}</p>
             <p className="text-lg font-bold">{item.value}</p>
           </div>
         ))}
       </div>
 
-      {/* Transaction Table */}
+      {/* 🧠 Table Section */}
       <div className="p-4">
-        <Table columns={tableColumns} data={accountData} />
+        {loading ? (
+          <div className="text-center text-lg font-semibold mt-10">
+            ⏳ Loading Top Accounts...
+          </div>
+        ) : (
+          <Table columns={tableColumns} data={filteredData} />
+        )}
       </div>
     </div>
   );

@@ -36,11 +36,11 @@ export const routes = [
         path: "/blockchain/accounts",
         icon: FaUsers,
       },
-      {
-        name: "Verified Contracts",
-        path: "/blockchain/contracts",
-        icon: FaLock,
-      },
+      // {
+      //   name: "Verified Contracts",
+      //   path: "/blockchain/contracts",
+      //   icon: FaLock,
+      // },
     ],
   },
   {
@@ -49,15 +49,15 @@ export const routes = [
     icon: FaUsers,
     dropdown: [
       {
-        name: "Leaderboard",
+        name: "Validators List",
         path: "/validators/leaderboard",
         icon: FaList,
       },
-      {
-        name: "Set Info",
-        path: "/validators/info",
-        icon: FaFileAlt,
-      },
+      // {
+      //   name: "Set Info",
+      //   path: "/validators/info",
+      //   icon: FaFileAlt,
+      // },
       // {
       //   name: "Delegators",
       //   path: "/validators/delegators",
