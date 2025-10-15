@@ -9,7 +9,7 @@ import {
 } from "react-icons/fa";
 import { SiBnbchain } from "react-icons/si";
 import metaimg from "../assets/metamask.png";
-import logo from "../assets/robomine.jpg";
+import logo from "../assets/logo.png";
 
 const Footer = () => {
   const [showPopup, setShowPopup] = useState(false);
@@ -26,7 +26,7 @@ const Footer = () => {
           params: [
             {
               chainId: "0x2C2",
-              chainName: "CBM Local Network",
+              chainName: "CBM Mainnet",
               nativeCurrency: {
                 name: "CBM",
                 symbol: "CBM",

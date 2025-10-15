@@ -11,7 +11,8 @@ import {
 } from "react-icons/fa";
 import { MdOutlineArrowDropDown } from "react-icons/md";
 import { routes } from "../routes/routes";
-import logo from "../assets/robomine.jpg";
+import logo from "../assets/logo.png";
+
 
 const Navbar = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(null);
