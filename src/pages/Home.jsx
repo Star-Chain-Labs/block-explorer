@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo, memo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, memo, use } from "react";
 import { ethers } from "ethers";
 import {
   Search,
@@ -8,6 +8,8 @@ import {
   Clock,
   ArrowLeft,
 } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
 
 const RPC_URL = "https://rpc.cbmscan.com/";
 
@@ -122,13 +124,13 @@ const Home = memo(({ navigate, searchQuery, setSearchQuery }) => {
 
   const handleSearch = useCallback(() => {
     if (!searchQuery.trim()) return;
-    navigate("/search");
+    navigate("/search?query=" + encodeURIComponent(searchQuery));
   }, [searchQuery, navigate]);
 
   const handleKeyDown = useCallback(
     (e) => {
       if (e.key === "Enter" && searchQuery.trim()) {
-        navigate("/search");
+        navigate("/search?query=" + encodeURIComponent(searchQuery));
       }
     },
     [searchQuery, navigate]
@@ -627,122 +629,103 @@ const AllTransactionsPage = memo(({ navigate }) => {
   );
 });
 
-const SearchResultsPage = memo(({ navigate }) => {
+
+const SearchResultsPage = memo(() => {
+  const getQueryFromHash = () => {
+    const hash = window.location.hash;
+    const parts = hash.split("?");
+    if (parts.length > 1) {
+      const qs = new URLSearchParams(parts[1]);
+      return qs.get("query");
+    }
+    return null;
+  };
+
+  const [query, setQuery] = useState(getQueryFromHash());
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      const newQuery = getQueryFromHash();
+      setQuery(newQuery);
+    };
+    window.addEventListener("hashchange", handleHashChange);
+    handleHashChange();
+    return () => {
+      window.removeEventListener("hashchange", handleHashChange);
+    };
+  }, []);
+
   const [result, setResult] = useState(null);
-  const [addressTransactions, setAddressTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const goBack = useCallback(() => navigate("/"), [navigate]);
 
-  const getQueryFromUrl = () => {
-    const hash = window.location.hash;
-    const urlParams = new URLSearchParams(hash.split('?')[1]);
-    return urlParams.get('query') || '';
-  };
-  const [query, setQuery] = useState(getQueryFromUrl());
-
-
   useEffect(() => {
-    const newQuery = getQueryFromUrl();
-    if (newQuery !== query) {
-      setQuery(newQuery);
-      setResult(null);
-      setAddressTransactions([]);
-      setLoading(true);
-      setError("");
-    }
-  }, [query]);
+    if (!query) return;
 
-  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError("");
+        setResult(null);
 
+        const res = await axios.get(
+          `https://api.cbmscan.com/api/transactions/search/${query}`
+        );
 
-    // Dummy data based on query type
-    setTimeout(() => {
-      if (/^\d+$/.test(query)) {
+        const data = res.data;
+
+        if (!data || !data.success || !data.data || data.data.length === 0) {
+          throw new Error("No results found");
+        }
+
         setResult({
-          type: "block",
-          data: {
-            number: parseInt(query),
-            timestamp: Math.floor(Date.now() / 1000) - 300, // 5 minutes ago
-            miner: "0xMinerAddress1234567890abcdef",
-            transactions: ["0xTx1", "0xTx2", "0xTx3"],
-            gasUsed: BigInt("500000"),
-            gasLimit: BigInt("1000000"),
-            hash: "0xBlockHash1234567890abcdef1234567890abcdef1234567890abcdef",
-          },
+          type: data.type,
+          data: data.data,
+          total: data.totalRecords || data.data.length
         });
-      } else if (query.startsWith("0x") && query.length === 66) {
-        setResult({
-          type: "transaction",
-          data: {
-            hash: query,
-            blockNumber: 64801256,
-            status: "Success",
-            timestamp: "10/16/2025, 03:06 PM IST",
-            timeAgo: "5 mins ago",
-            from: "0xA57a4E4f9b3c2D8e7F1g2H3i4J5k6L7m8N9o0P1q2r3S4t5u6v7w8x9y0z1a2b3c4d5",
-            to: "0xF9CA931d7a3b2C8e7F1g2H3i4J5k6L7m8N9o0P1q2r3S4t5u6v7w8x9y0z1a2b3c4d5",
-            value: "0.011196256",
-            burn: "Burn 0.00119626 BNB ($1.32)",
-            receipt: {
-              gasUsed: BigInt("21000"),
-            },
-            gasPrice: "10",
-            internalTxns: [
-              {
-                type: "Transfer",
-                value: "0.00069766030357464 BNB",
-                from: "BSC: Validator Set",
-                to: "BSC: System Reward",
-              },
-              {
-                type: "Transfer",
-                value: "0.01119625648571943 BNB",
-                from: "BSC: Validator Set",
-                to: "Null: 0x00...dEaD",
-              },
-            ],
-          },
-        });
-      } else if (query.startsWith("0x") && query.length === 42) {
-        setResult({
-          type: "address",
-          data: {
-            address: query,
-            balance: "1.23456789",
-            txCount: 42,
-          },
-        });
-        setAddressTransactions([
-          {
-            hash: "0x5c201f8c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1",
-            block: 64801255,
-            timeAgo: "10 mins ago",
-            from: "0x82916c48d9e0f1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t1u2v3w4x5y6z7",
-            to: "0xB1C2D3E4F5a6b7c8d9e0f1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t1u2v3",
-            value: "0.00010014",
-            gasFee: "0.00000105",
-          },
-          {
-            hash: "0x51fc087848d9e0f1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t1u2v3w4x5y6",
-            block: 64801254,
-            timeAgo: "15 mins ago",
-            from: "0x53D72724e5f6a7b8c9d0e1f2a3b4c5d6e7f8g9h0i1j2k3l4m5n6o7p8q9r0s1t2u3",
-            to: "0xE8F9G0H1I2J3K4L5M6N7O8P9Q0R1S2T3U4V5W6X7Y8Z9A0B1C2D3E4F5G6H7I8J9K",
-            value: "0",
-            gasFee: "0",
-          },
-        ]);
-      } else {
+
+      } catch (err) {
+        console.error("Error:", err);
         setError("No results found for this query");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    }, 1000); // Simulate loading delay
+    };
 
-    return () => { };
+    fetchData();
   }, [query]);
 
+  // Helper functions
+  const formatTimestamp = (timestamp) => {
+    if (!timestamp) return "N/A";
+    const date = new Date(parseInt(timestamp) * 1000);
+    return date.toLocaleString();
+  };
+
+  const hexToDecimal = (hexValue) => {
+    if (!hexValue) return 0;
+    try {
+      return parseInt(hexValue, 16);
+    } catch {
+      return 0;
+    }
+  };
+
+  const formatValue = (hexValue) => {
+    const decimal = hexToDecimal(hexValue);
+    return (decimal / 1e18).toFixed(4); // Convert wei to CBM
+  };
+
+  const formatGasPrice = (gasPriceHex) => {
+    const gasPrice = hexToDecimal(gasPriceHex);
+    const gasFee = (gasPrice / 1e9).toFixed(6); // Gwei to decimal
+    return `${gasFee} Gwei`;
+  };
+
+  // Loading state
   if (loading)
     return (
       <div className="min-h-screen bg-gray-50 py-20 text-center">
@@ -750,6 +733,7 @@ const SearchResultsPage = memo(({ navigate }) => {
       </div>
     );
 
+  // Error state
   if (error)
     return (
       <div className="min-h-screen bg-gray-50 py-20">
@@ -768,16 +752,299 @@ const SearchResultsPage = memo(({ navigate }) => {
       </div>
     );
 
-  if (!result)
+  if (!result || !result.data || result.data.length === 0)
     return (
       <div className="min-h-screen bg-gray-50 py-20 text-center">
-        No results
+        No results found for "{query}"
       </div>
     );
 
+  // ---------- TRANSACTION DETAILS (CARD VIEW) ----------
+  const renderTransactionDetails = () => {
+    const tx = result.data[0];
+    return (
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">Transaction Details</h2>
+          <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+            Block #{tx.blockNumber}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+          {/* Transaction Hash */}
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="text-sm font-medium text-gray-500">Transaction Hash</div>
+            <div className="mt-1 font-mono text-blue-600 text-sm break-all hover:text-blue-800 cursor-pointer">
+              {tx.hash}
+            </div>
+          </div>
+
+          {/* From Address */}
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="text-sm font-medium text-gray-500">From</div>
+            <div className="mt-1 font-mono text-gray-700 text-sm">
+              {tx.from}
+            </div>
+          </div>
+
+          {/* To Address */}
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="text-sm font-medium text-gray-500">To</div>
+            <div className="mt-1 font-mono text-gray-700 text-sm">
+              {tx.to || "Contract Creation"}
+            </div>
+          </div>
+
+          {/* Value */}
+          <div className="bg-green-50 p-4 rounded-lg">
+            <div className="text-sm font-medium text-gray-500">Value</div>
+            <div className="mt-1 font-bold text-2xl text-green-600">
+              {formatValue(tx.value)} CBM
+            </div>
+          </div>
+
+          {/* Gas Used */}
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="text-sm font-medium text-gray-500">Gas Used</div>
+            <div className="mt-1 font-mono text-gray-900">
+              {hexToDecimal(tx.gasUsed)}
+            </div>
+          </div>
+
+          {/* Gas Price */}
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="text-sm font-medium text-gray-500">Gas Price</div>
+            <div className="mt-1 font-mono text-gray-900">
+              {formatGasPrice(tx.gasPrice)}
+            </div>
+          </div>
+
+          {/* Nonce */}
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="text-sm font-medium text-gray-500">Nonce</div>
+            <div className="mt-1 font-mono text-gray-900">{tx.nonce}</div>
+          </div>
+
+          {/* Timestamp */}
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="text-sm font-medium text-gray-500">Timestamp</div>
+            <div className="mt-1 text-gray-900">{formatTimestamp(tx.timeStamp)}</div>
+          </div>
+        </div>
+
+        {/* Raw Data Toggle */}
+        <details className="mt-6">
+          <summary className="cursor-pointer text-blue-600 hover:text-blue-800 font-medium mb-2">
+            View Raw Transaction Data
+          </summary>
+          <div className="p-4 bg-gray-100 rounded-lg overflow-auto">
+            <pre className="text-xs text-gray-800 whitespace-pre-wrap">
+              {JSON.stringify(tx, null, 2)}
+            </pre>
+          </div>
+        </details>
+      </div>
+    );
+  };
+
+  // ---------- ADDRESS TRANSACTIONS TABLE ----------
+  const renderAddressTransactions = () => {
+    const columns = [
+      {
+        key: "hash",
+        label: "Txn Hash",
+        render: (v) => `${v?.slice(0, 12)}...${v?.slice(-8)}`,
+        className: "font-mono text-blue-600"
+      },
+      {
+        key: "blockNumber",
+        label: "Block",
+        render: (v) => `#${v}`,
+        className: "font-semibold"
+      },
+      {
+        key: "timeStamp",
+        label: "Time",
+        render: (v) => formatTimestamp(v),
+        className: "text-gray-600 text-xs"
+      },
+      {
+        key: "from",
+        label: "From",
+        render: (v) => `${v?.slice(0, 8)}...${v?.slice(-8)}`,
+        className: "font-mono text-gray-700"
+      },
+      {
+        key: "to",
+        label: "To",
+        render: (v) => v ? `${v.slice(0, 8)}...${v.slice(-8)}` : "Contract",
+        className: "font-mono text-gray-700"
+      },
+      {
+        key: "value",
+        label: "Value",
+        render: (v) => `${formatValue(v)} CBM`,
+        className: "font-semibold text-green-600"
+      },
+      {
+        key: "gasUsed",
+        label: "Gas",
+        render: (v) => hexToDecimal(v),
+        className: "text-gray-600"
+      },
+    ];
+
+    return (
+      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+          <h2 className="text-xl font-bold text-gray-800">
+            Transactions for Address ({result.total})
+          </h2>
+          <div className="mt-2 text-sm text-gray-600">
+            Address: <span className="font-mono text-blue-600">{query}</span>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                {columns.map(({ label }) => (
+                  <th
+                    key={label}
+                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    {label}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {result.data.map((item, idx) => (
+                <tr key={idx} className="hover:bg-gray-50">
+                  {columns.map(({ key, render, className }) => (
+                    <td key={key} className="px-4 py-4 whitespace-nowrap text-sm">
+                      <div className={className || "text-gray-900"}>
+                        {render ? render(item[key]) : (item[key] || "N/A")}
+                      </div>
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+
+  // ---------- BLOCK TRANSACTIONS TABLE ----------
+  const renderBlockTransactions = () => {
+    const columns = [
+      {
+        key: "hash",
+        label: "Txn Hash",
+        render: (v) => `${v?.slice(0, 12)}...${v?.slice(-8)}`,
+        className: "font-mono text-blue-600"
+      },
+      {
+        key: "from",
+        label: "From",
+        render: (v) => `${v?.slice(0, 8)}...${v?.slice(-8)}`,
+        className: "font-mono text-gray-700"
+      },
+      {
+        key: "to",
+        label: "To",
+        render: (v) => v ? `${v.slice(0, 8)}...${v.slice(-8)}` : "Contract",
+        className: "font-mono text-gray-700"
+      },
+      {
+        key: "value",
+        label: "Value",
+        render: (v) => `${formatValue(v)} CBM`,
+        className: "font-semibold text-green-600"
+      },
+      {
+        key: "gasUsed",
+        label: "Gas Used",
+        render: (v) => hexToDecimal(v),
+        className: "text-gray-600"
+      },
+      {
+        key: "timeStamp",
+        label: "Time",
+        render: (v) => formatTimestamp(v),
+        className: "text-gray-600 text-xs"
+      },
+    ];
+
+    return (
+      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+          <h2 className="text-xl font-bold text-gray-800">
+            Block Transactions ({result.total})
+          </h2>
+          <div className="mt-2 text-sm text-gray-600">
+            Block: #{result.data[0]?.blockNumber} | Searched: <span className="font-mono text-blue-600">{query}</span>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                {columns.map(({ label }) => (
+                  <th
+                    key={label}
+                    className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    {label}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {result.data.map((item, idx) => (
+                <tr key={idx} className="hover:bg-gray-50">
+                  {columns.map(({ key, render, className }) => (
+                    <td key={key} className="px-4 py-4 whitespace-nowrap text-sm">
+                      <div className={className || "text-gray-900"}>
+                        {render ? render(item[key]) : (item[key] || "N/A")}
+                      </div>
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+
+  // Render based on type
+  const renderContent = () => {
+    switch (result.type) {
+      case "transaction":
+        return renderTransactionDetails();
+      case "address":
+        return renderAddressTransactions();
+      case "block":
+        return renderBlockTransactions();
+      default:
+        return (
+          <div className="bg-white rounded-lg shadow-md p-6 text-center text-gray-500">
+            Unsupported search type: {result.type}
+          </div>
+        );
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-6xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center gap-4 mb-6">
           <button
             onClick={goBack}
@@ -786,300 +1053,26 @@ const SearchResultsPage = memo(({ navigate }) => {
             <ArrowLeft className="w-5 h-5" />
             Back
           </button>
-          <h1 className="text-3xl font-bold text-gray-800">Search Results</h1>
+          <div>
+            {/* <h1 className="text-3xl font-bold text-gray-800">
+              {result.type.charAt(0).toUpperCase() + result.type.slice(1)} Details
+            </h1> */}
+            <div className="text-sm text-gray-600 mt-1">
+              Searched for: <span className="font-mono text-blue-600">{query}</span>
+            </div>
+          </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          {result.type === "block" && (
-            <div>
-              <h2 className="text-2xl font-bold mb-6 text-gray-800">
-                Block #{result.data.number}
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="border-b pb-3">
-                  <span className="font-semibold text-gray-600">
-                    Timestamp:
-                  </span>
-                  <div className="mt-1 text-gray-800">
-                    {new Date(result.data.timestamp * 1000).toLocaleString()}
-                  </div>
-                </div>
-                <div className="border-b pb-3">
-                  <span className="font-semibold text-gray-600">Miner:</span>
-                  <div className="mt-1 font-mono text-sm text-blue-600 break-all">
-                    {result.data.miner}
-                  </div>
-                </div>
-                <div className="border-b pb-3">
-                  <span className="font-semibold text-gray-600">
-                    Transactions:
-                  </span>
-                  <div className="mt-1 text-gray-800">
-                    {result.data.transactions.length}
-                  </div>
-                </div>
-                <div className="border-b pb-3">
-                  <span className="font-semibold text-gray-600">Gas Used:</span>
-                  <div className="mt-1 text-gray-800">
-                    {result.data.gasUsed.toString()}
-                  </div>
-                </div>
-                <div className="border-b pb-3">
-                  <span className="font-semibold text-gray-600">
-                    Gas Limit:
-                  </span>
-                  <div className="mt-1 text-gray-800">
-                    {result.data.gasLimit.toString()}
-                  </div>
-                </div>
-                <div className="border-b pb-3">
-                  <span className="font-semibold text-gray-600">Hash:</span>
-                  <div className="mt-1 font-mono text-sm text-blue-600 break-all">
-                    {result.data.hash}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+        {renderContent()}
 
-          {result.type === "transaction" && (
-            <div>
-              <h2 className="text-2xl font-bold mb-6 text-gray-800">
-                Transaction Details
-              </h2>
-              <div className="space-y-4">
-                <div className="border-b pb-3">
-                  <span className="font-semibold text-gray-600">Hash:</span>
-                  <div className="mt-1 font-mono text-sm text-blue-600 break-all">
-                    {result.data.hash}
-                  </div>
-                </div>
-                <div className="border-b pb-3">
-                  <span className="font-semibold text-gray-600">Status:</span>
-                  <div className="mt-1">
-                    <span
-                      className={`px-3 py-1 rounded text-sm font-semibold ${result.data.status === "Success"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
-                        }`}
-                    >
-                      {result.data.status}
-                    </span>
-                  </div>
-                </div>
-                <div className="border-b pb-3">
-                  <span className="font-semibold text-gray-600">
-                    Block Number:
-                  </span>
-                  <div className="mt-1">
-                    <span className="bg-gray-100 px-3 py-1 rounded font-mono">
-                      {result.data.blockNumber} (1460 Block Confirmations)
-                    </span>
-                  </div>
-                </div>
-                <div className="border-b pb-3">
-                  <span className="font-semibold text-gray-600">Timestamp:</span>
-                  <div className="mt-1 text-gray-800">
-                    {result.data.timestamp} ({result.data.timeAgo})
-                  </div>
-                </div>
-                <div className="border-b pb-3">
-                  <span className="font-semibold text-gray-600">From:</span>
-                  <div className="mt-1 font-mono text-sm text-blue-600 break-all">
-                    {result.data.from} (Validator: BNBEve)
-                  </div>
-                </div>
-                <div className="border-b pb-3">
-                  <span className="font-semibold text-gray-600">To:</span>
-                  <div className="mt-1 font-mono text-sm text-blue-600 break-all">
-                    {result.data.to || "Contract Creation"} (BSC: Validator Set)
-                  </div>
-                </div>
-                <div className="border-b pb-3">
-                  <span className="font-semibold text-gray-600">Value:</span>
-                  <div className="mt-1 text-lg font-semibold text-gray-800">
-                    {result.data.value} BNB ($1.32)
-                  </div>
-                </div>
-                {result.data.burn && (
-                  <div className="border-b pb-3">
-                    <span className="font-semibold text-gray-600">Burn:</span>
-                    <div className="mt-1 text-gray-800">{result.data.burn}</div>
-                  </div>
-                )}
-                {result.data.receipt && (
-                  <>
-                    <div className="border-b pb-3">
-                      <span className="font-semibold text-gray-600">
-                        Transaction Fee:
-                      </span>
-                      <div className="mt-1 text-gray-800">
-                        {ethers.formatEther(
-                          BigInt(result.data.receipt.gasUsed) *
-                          BigInt(result.data.gasPrice || 0)
-                        )} BNB ($0.00)
-                      </div>
-                    </div>
-                    <div className="border-b pb-3">
-                      <span className="font-semibold text-gray-600">
-                        Gas Price:
-                      </span>
-                      <div className="mt-1 text-gray-800">
-                        {result.data.gasPrice} Gwei (0 BNB)
-                      </div>
-                    </div>
-                    <div className="border-b pb-3">
-                      <span className="font-semibold text-gray-600">
-                        Gas Used:
-                      </span>
-                      <div className="mt-1 text-gray-800">
-                        {result.data.receipt.gasUsed.toString()}
-                      </div>
-                    </div>
-                  </>
-                )}
-                {result.data.internalTxns.length > 0 && (
-                  <div className="border-b pb-3">
-                    <span className="font-semibold text-gray-600">
-                      Internal Transactions:
-                    </span>
-                    <div className="mt-1">
-                      <button className="text-blue-600 mb-2">All Transfers</button>
-                      <div className="space-y-2">
-                        {result.data.internalTxns.map((tx, idx) => (
-                          <div key={idx} className="text-sm text-gray-600">
-                            {tx.type}: {tx.value} BNB ($0.83) from {tx.from} to{" "}
-                            {tx.to}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {result.type === "address" && (
-            <div>
-              <h2 className="text-2xl font-bold mb-6 text-gray-800">
-                Address Details
-              </h2>
-              <div className="space-y-4 mb-8">
-                <div className="border-b pb-3">
-                  <span className="font-semibold text-gray-600">Address:</span>
-                  <div className="mt-1 font-mono text-sm text-blue-600 break-all">
-                    {result.data.address}
-                  </div>
-                </div>
-                <div className="border-b pb-3">
-                  <span className="font-semibold text-gray-600">Balance:</span>
-                  <div className="mt-1 text-2xl font-bold text-gray-800">
-                    {result.data.balance} CBM
-                  </div>
-                </div>
-                <div className="border-b pb-3">
-                  <span className="font-semibold text-gray-600">
-                    Total Transaction Count:
-                  </span>
-                  <div className="mt-1 text-gray-800">
-                    {result.data.txCount}
-                  </div>
-                </div>
-              </div>
-
-              {addressTransactions.length > 0 && (
-                <div className="mt-8">
-                  <h3 className="text-xl font-bold text-gray-800 mb-4">
-                    Recent Transactions ({addressTransactions.length})
-                  </h3>
-                  <div className="bg-gray-50 rounded-lg overflow-hidden">
-                    <div className="overflow-x-auto">
-                      <table className="w-full">
-                        <thead className="bg-gray-200 border-b border-gray-300">
-                          <tr>
-                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                              Txn Hash
-                            </th>
-                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                              Block
-                            </th>
-                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                              Time
-                            </th>
-                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                              From
-                            </th>
-                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                              To
-                            </th>
-                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                              Value
-                            </th>
-                            <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                              Gas Fee
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white">
-                          {addressTransactions.map((tx, idx) => (
-                            <tr
-                              key={`${tx.hash}-${idx}`}
-                              className="border-b border-gray-100 hover:bg-gray-50"
-                            >
-                              <td className="px-4 py-3 text-sm font-mono text-blue-600">
-                                {tx.hash.slice(0, 12)}...
-                              </td>
-                              <td className="px-4 py-3 text-sm">
-                                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
-                                  {tx.block}
-                                </span>
-                              </td>
-                              <td className="px-4 py-3 text-xs text-gray-600">
-                                {tx.timeAgo}
-                              </td>
-                              <td className="px-4 py-3 text-sm font-mono text-gray-700">
-                                {tx.from.slice(0, 8)}...
-                              </td>
-                              <td className="px-4 py-3 text-sm font-mono text-gray-700">
-                                {typeof tx.to === "string"
-                                  ? tx.to.slice(0, 8) + "..."
-                                  : tx.to}
-                              </td>
-                              <td className="px-4 py-3 text-sm font-semibold text-gray-800">
-                                {parseFloat(tx.value).toFixed(4)} CBM
-                              </td>
-                              <td className="px-4 py-3 text-sm text-gray-600">
-                                {parseFloat(tx.gasFee).toFixed(6)} CBM
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {addressTransactions.length === 0 && (
-                <div className="mt-8 text-center py-8 bg-gray-50 rounded-lg">
-                  <p className="text-gray-600">
-                    No recent transactions found for this address in the last 50
-                    blocks
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+        <footer className="mt-16 py-6 bg-white border-t border-gray-200 text-center text-gray-600 text-sm">
+          © 2025 CBM BlockExplorer - Powered by Ethereum RPC
+        </footer>
       </div>
-
-      <footer className="mt-16 py-6 bg-white border-t border-gray-200 text-center text-gray-600">
-        © 2025 CBM BlockExplorer - Powered by Ethereum RPC
-      </footer>
     </div>
   );
 });
+
 
 export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -1093,7 +1086,7 @@ export default function App() {
         if (currentPath === "/blockchain/transactions") {
           return <AllTransactionsPage navigate={navigate} />;
         }
-        if (currentPath === "/search") {
+        if (currentPath === "/search/:query") {
           return <SearchResultsPage query={searchQuery} navigate={navigate} />;
         }
 
