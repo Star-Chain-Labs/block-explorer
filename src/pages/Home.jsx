@@ -76,8 +76,8 @@ const BlockItem = memo(({ block }) => (
 ));
 
 // Memoized Transaction Item Component
-const TransactionItem = memo(({ tx }) => (
-  <div className="border-b border-gray-100 pb-3 last:border-0">
+const TransactionItem = memo(({ tx, navigate }) => (
+  <div onClick={() => navigate(`/search?query=${encodeURIComponent(tx.hash)}`)} className="border-b border-gray-100 pb-3 last:border-0">
     <div className="flex justify-between items-start">
       <div className="flex-1">
         <div className="text-sm font-mono text-blue-600 mb-1">
@@ -351,7 +351,7 @@ const Home = memo(({ navigate, searchQuery, setSearchQuery }) => {
                 </div>
                 <div className="space-y-4">
                   {latestTransactions.map((tx, idx) => (
-                    <TransactionItem key={`${tx.hash}-${idx}`} tx={tx} />
+                    <TransactionItem key={`${tx.hash}-${idx}`} tx={tx} navigate={navigate} />
                   ))}
                 </div>
               </div>
@@ -488,48 +488,57 @@ const AllTransactionsPage = memo(({ navigate }) => {
   const goBack = useCallback(() => navigate("/"), [navigate]);
 
   useEffect(() => {
-    let mounted = true;
+    // Dummy data to simulate transactions
+    const dummyTxns = [
+      {
+        hash: "0x973695ce00a8e8f3e6c9f0d7b2c1d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1",
+        method: "Deposit",
+        block: 64801256,
+        age: "5 mins ago",
+        from: "0xA57a4E4f9b3c2D8e7F1g2H3i4J5k6L7m8N9o0P1q2r3S4t5u6v7w8x9y0z1a2b3c4d5",
+        to: "0xF9CA931d7a3b2C8e7F1g2H3i4J5k6L7m8N9o0P1q2r3S4t5u6v7w8x9y0z1a2b3c4d5",
+        amount: "0.011196256 BNB",
+        txnFee: "0.00000258 BNB",
+      },
+      {
+        hash: "0x5c201f8c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1",
+        method: "Transfer",
+        block: 64801255,
+        age: "10 mins ago",
+        from: "0x82916c48d9e0f1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t1u2v3w4x5y6z7",
+        to: "0xB1C2D3E4F5a6b7c8d9e0f1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t1u2v3",
+        amount: "0.00010014 BNB",
+        txnFee: "0.00000105 BNB",
+      },
+      {
+        hash: "0x51fc087848d9e0f1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t1u2v3w4x5y6",
+        method: "Transfer",
+        block: 64801254,
+        age: "15 mins ago",
+        from: "0x53D72724e5f6a7b8c9d0e1f2a3b4c5d6e7f8g9h0i1j2k3l4m5n6o7p8q9r0s1t2u3",
+        to: "0xE8F9G0H1I2J3K4L5M6N7O8P9Q0R1S2T3U4V5W6X7Y8Z9A0B1C2D3E4F5G6H7I8J9K",
+        amount: "0 BNB",
+        txnFee: "0 BNB",
+      },
+      {
+        hash: "0x82f0c32665d7e8f9a0b1c2d3e4f5g6h7i8j9k0l1m2n3o4p5q6r7s8t9u0v1w2x3y4z",
+        method: "Transfer",
+        block: 64801253,
+        age: "20 mins ago",
+        from: "0xC3D4E5F6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0U1V2W3X4Y5Z6A7B8C9D0E1F2G3H4I",
+        to: "0xD5E6F7G8H9I0J1K2L3M4N5O6P7Q8R9S0T1U2V3W4X5Y6Z7A8B9C0D1E2F3G4H5I6J",
+        amount: "0.005 BNB",
+        txnFee: "0.00000321 BNB",
+      },
+    ];
 
-    const fetchTxns = async () => {
-      try {
-        const provider = new ethers.JsonRpcProvider(RPC_URL);
-        const latest = await provider.getBlockNumber();
-        const blocks = await Promise.all(
-          Array.from({ length: 10 }, (_, i) =>
-            provider.getBlock(latest - i, true)
-          )
-        );
+    // Simulate loading delay
+    setTimeout(() => {
+      setTxns(dummyTxns);
+      setLoading(false);
+    }, 1000);
 
-        const txList = [];
-        for (const block of blocks) {
-          if (block && block.transactions) {
-            for (const hash of block.transactions.slice(0, 5)) {
-              const tx = await provider.getTransaction(hash);
-              if (tx) {
-                txList.push({
-                  hash: tx.hash,
-                  block: tx.blockNumber,
-                  from: tx.from,
-                  to: tx.to || "Contract Creation",
-                  value: ethers.formatEther(tx.value),
-                });
-              }
-            }
-          }
-        }
-
-        if (mounted) {
-          setTxns(txList);
-          setLoading(false);
-        }
-      } catch (err) {
-        console.error(err);
-        if (mounted) setLoading(false);
-      }
-    };
-
-    fetchTxns();
-    return () => (mounted = false);
+    return () => { };
   }, []);
 
   return (
@@ -559,7 +568,13 @@ const AllTransactionsPage = memo(({ navigate }) => {
                     Txn Hash
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                    Method
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
                     Block
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                    Age
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
                     From
@@ -568,7 +583,10 @@ const AllTransactionsPage = memo(({ navigate }) => {
                     To
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
-                    Value (CBM)
+                    Amount
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                    Txn Fee
                   </th>
                 </tr>
               </thead>
@@ -577,22 +595,27 @@ const AllTransactionsPage = memo(({ navigate }) => {
                   <tr
                     key={`${t.hash}-${i}`}
                     className="border-b border-gray-100 hover:bg-gray-50"
+                    onClick={() => navigate(`/search?query=${encodeURIComponent(t.hash)}`)}
                   >
-                    <td className="px-6 py-4 text-sm font-mono text-blue-600">
+                    <td
+                      // onClick={() => navigate(`/search?query=${encodeURIComponent(t.hash)}`)}
+                      className="px-6 py-4 text-sm font-mono text-blue-600 cursor-pointer hover:underline"
+                    >
                       {t.hash.slice(0, 16)}...
                     </td>
+                    <td className="px-6 py-4 text-sm">{t.method}</td>
                     <td className="px-6 py-4 text-sm">{t.block}</td>
+                    <td className="px-6 py-4 text-sm">{t.age}</td>
                     <td className="px-6 py-4 text-sm font-mono">
                       {t.from.slice(0, 10)}...
                     </td>
                     <td className="px-6 py-4 text-sm font-mono">
-                      {typeof t.to === "string"
-                        ? t.to.slice(0, 10) + "..."
-                        : t.to}
+                      {typeof t.to === "string" ? t.to.slice(0, 10) + "..." : t.to}
                     </td>
                     <td className="px-6 py-4 text-sm font-semibold">
-                      {parseFloat(t.value).toFixed(4)}
+                      {t.amount}
                     </td>
+                    <td className="px-6 py-4 text-sm">{t.txnFee}</td>
                   </tr>
                 ))}
               </tbody>
@@ -604,7 +627,7 @@ const AllTransactionsPage = memo(({ navigate }) => {
   );
 });
 
-const SearchResultsPage = memo(({ query, navigate }) => {
+const SearchResultsPage = memo(({ navigate }) => {
   const [result, setResult] = useState(null);
   const [addressTransactions, setAddressTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -612,105 +635,112 @@ const SearchResultsPage = memo(({ query, navigate }) => {
 
   const goBack = useCallback(() => navigate("/"), [navigate]);
 
+  const getQueryFromUrl = () => {
+    const hash = window.location.hash;
+    const urlParams = new URLSearchParams(hash.split('?')[1]);
+    return urlParams.get('query') || '';
+  };
+  const [query, setQuery] = useState(getQueryFromUrl());
+
+
   useEffect(() => {
-    const searchBlockchain = async () => {
-      try {
-        setLoading(true);
-        setError("");
-        const provider = new ethers.JsonRpcProvider(RPC_URL);
+    const newQuery = getQueryFromUrl();
+    if (newQuery !== query) {
+      setQuery(newQuery);
+      setResult(null);
+      setAddressTransactions([]);
+      setLoading(true);
+      setError("");
+    }
+  }, [query]);
 
-        if (/^\d+$/.test(query)) {
-          const block = await provider.getBlock(parseInt(query), true);
-          if (block) {
-            setResult({ type: "block", data: block });
-            return;
-          }
-        }
+  useEffect(() => {
 
-        if (query.startsWith("0x") && query.length === 66) {
-          try {
-            const tx = await provider.getTransaction(query);
-            const receipt = await provider.getTransactionReceipt(query);
-            if (tx) {
-              setResult({ type: "transaction", data: { ...tx, receipt } });
-              return;
-            }
-          } catch (e) {
-            console.log("Not a transaction");
-          }
-        }
 
-        if (query.startsWith("0x") && query.length === 42) {
-          const balance = await provider.getBalance(query);
-          const txCount = await provider.getTransactionCount(query);
-          const latestBlockNumber = await provider.getBlockNumber();
-          const addressTxns = [];
-
-          for (
-            let i = latestBlockNumber;
-            i > Math.max(0, latestBlockNumber - 50);
-            i--
-          ) {
-            const block = await provider.getBlock(i, true);
-            if (block && block.transactions) {
-              for (const txHash of block.transactions) {
-                try {
-                  const tx = await provider.getTransaction(txHash);
-                  const receipt = await provider.getTransactionReceipt(txHash);
-
-                  if (
-                    tx &&
-                    (tx.from.toLowerCase() === query.toLowerCase() ||
-                      (tx.to && tx.to.toLowerCase() === query.toLowerCase()))
-                  ) {
-                    const timeAgo = Math.floor(
-                      (Date.now() / 1000 - block.timestamp) / 60
-                    );
-                    addressTxns.push({
-                      hash: tx.hash,
-                      block: tx.blockNumber,
-                      from: tx.from,
-                      to: tx.to || "Contract Creation",
-                      value: ethers.formatEther(tx.value),
-                      gasFee: receipt
-                        ? ethers.formatEther(
-                            BigInt(receipt.gasUsed) * BigInt(tx.gasPrice || 0)
-                          )
-                        : "0",
-                      timeAgo: timeAgo < 1 ? "Just now" : `${timeAgo} mins ago`,
-                      timestamp: new Date(
-                        block.timestamp * 1000
-                      ).toLocaleString(),
-                    });
-                  }
-                } catch (e) {
-                  console.error("Error fetching tx:", e);
-                }
-              }
-            }
-          }
-
-          setAddressTransactions(addressTxns);
-          setResult({
-            type: "address",
-            data: {
-              address: query,
-              balance: ethers.formatEther(balance),
-              txCount,
+    // Dummy data based on query type
+    setTimeout(() => {
+      if (/^\d+$/.test(query)) {
+        setResult({
+          type: "block",
+          data: {
+            number: parseInt(query),
+            timestamp: Math.floor(Date.now() / 1000) - 300, // 5 minutes ago
+            miner: "0xMinerAddress1234567890abcdef",
+            transactions: ["0xTx1", "0xTx2", "0xTx3"],
+            gasUsed: BigInt("500000"),
+            gasLimit: BigInt("1000000"),
+            hash: "0xBlockHash1234567890abcdef1234567890abcdef1234567890abcdef",
+          },
+        });
+      } else if (query.startsWith("0x") && query.length === 66) {
+        setResult({
+          type: "transaction",
+          data: {
+            hash: query,
+            blockNumber: 64801256,
+            status: "Success",
+            timestamp: "10/16/2025, 03:06 PM IST",
+            timeAgo: "5 mins ago",
+            from: "0xA57a4E4f9b3c2D8e7F1g2H3i4J5k6L7m8N9o0P1q2r3S4t5u6v7w8x9y0z1a2b3c4d5",
+            to: "0xF9CA931d7a3b2C8e7F1g2H3i4J5k6L7m8N9o0P1q2r3S4t5u6v7w8x9y0z1a2b3c4d5",
+            value: "0.011196256",
+            burn: "Burn 0.00119626 BNB ($1.32)",
+            receipt: {
+              gasUsed: BigInt("21000"),
             },
-          });
-          return;
-        }
-
+            gasPrice: "10",
+            internalTxns: [
+              {
+                type: "Transfer",
+                value: "0.00069766030357464 BNB",
+                from: "BSC: Validator Set",
+                to: "BSC: System Reward",
+              },
+              {
+                type: "Transfer",
+                value: "0.01119625648571943 BNB",
+                from: "BSC: Validator Set",
+                to: "Null: 0x00...dEaD",
+              },
+            ],
+          },
+        });
+      } else if (query.startsWith("0x") && query.length === 42) {
+        setResult({
+          type: "address",
+          data: {
+            address: query,
+            balance: "1.23456789",
+            txCount: 42,
+          },
+        });
+        setAddressTransactions([
+          {
+            hash: "0x5c201f8c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1",
+            block: 64801255,
+            timeAgo: "10 mins ago",
+            from: "0x82916c48d9e0f1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t1u2v3w4x5y6z7",
+            to: "0xB1C2D3E4F5a6b7c8d9e0f1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t1u2v3",
+            value: "0.00010014",
+            gasFee: "0.00000105",
+          },
+          {
+            hash: "0x51fc087848d9e0f1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t1u2v3w4x5y6",
+            block: 64801254,
+            timeAgo: "15 mins ago",
+            from: "0x53D72724e5f6a7b8c9d0e1f2a3b4c5d6e7f8g9h0i1j2k3l4m5n6o7p8q9r0s1t2u3",
+            to: "0xE8F9G0H1I2J3K4L5M6N7O8P9Q0R1S2T3U4V5W6X7Y8Z9A0B1C2D3E4F5G6H7I8J9K",
+            value: "0",
+            gasFee: "0",
+          },
+        ]);
+      } else {
         setError("No results found for this query");
-      } catch (err) {
-        setError("Error searching: " + err.message);
-      } finally {
-        setLoading(false);
       }
-    };
+      setLoading(false);
+    }, 1000); // Simulate loading delay
 
-    if (query) searchBlockchain();
+    return () => { };
   }, [query]);
 
   if (loading)
@@ -825,35 +855,79 @@ const SearchResultsPage = memo(({ query, navigate }) => {
                   </div>
                 </div>
                 <div className="border-b pb-3">
+                  <span className="font-semibold text-gray-600">Status:</span>
+                  <div className="mt-1">
+                    <span
+                      className={`px-3 py-1 rounded text-sm font-semibold ${result.data.status === "Success"
+                        ? "bg-green-100 text-green-800"
+                        : "bg-red-100 text-red-800"
+                        }`}
+                    >
+                      {result.data.status}
+                    </span>
+                  </div>
+                </div>
+                <div className="border-b pb-3">
                   <span className="font-semibold text-gray-600">
                     Block Number:
                   </span>
                   <div className="mt-1">
                     <span className="bg-gray-100 px-3 py-1 rounded font-mono">
-                      {result.data.blockNumber}
+                      {result.data.blockNumber} (1460 Block Confirmations)
                     </span>
+                  </div>
+                </div>
+                <div className="border-b pb-3">
+                  <span className="font-semibold text-gray-600">Timestamp:</span>
+                  <div className="mt-1 text-gray-800">
+                    {result.data.timestamp} ({result.data.timeAgo})
                   </div>
                 </div>
                 <div className="border-b pb-3">
                   <span className="font-semibold text-gray-600">From:</span>
                   <div className="mt-1 font-mono text-sm text-blue-600 break-all">
-                    {result.data.from}
+                    {result.data.from} (Validator: BNBEve)
                   </div>
                 </div>
                 <div className="border-b pb-3">
                   <span className="font-semibold text-gray-600">To:</span>
                   <div className="mt-1 font-mono text-sm text-blue-600 break-all">
-                    {result.data.to || "Contract Creation"}
+                    {result.data.to || "Contract Creation"} (BSC: Validator Set)
                   </div>
                 </div>
                 <div className="border-b pb-3">
                   <span className="font-semibold text-gray-600">Value:</span>
                   <div className="mt-1 text-lg font-semibold text-gray-800">
-                    {ethers.formatEther(result.data.value)} CBM
+                    {result.data.value} BNB ($1.32)
                   </div>
                 </div>
+                {result.data.burn && (
+                  <div className="border-b pb-3">
+                    <span className="font-semibold text-gray-600">Burn:</span>
+                    <div className="mt-1 text-gray-800">{result.data.burn}</div>
+                  </div>
+                )}
                 {result.data.receipt && (
                   <>
+                    <div className="border-b pb-3">
+                      <span className="font-semibold text-gray-600">
+                        Transaction Fee:
+                      </span>
+                      <div className="mt-1 text-gray-800">
+                        {ethers.formatEther(
+                          BigInt(result.data.receipt.gasUsed) *
+                          BigInt(result.data.gasPrice || 0)
+                        )} BNB ($0.00)
+                      </div>
+                    </div>
+                    <div className="border-b pb-3">
+                      <span className="font-semibold text-gray-600">
+                        Gas Price:
+                      </span>
+                      <div className="mt-1 text-gray-800">
+                        {result.data.gasPrice} Gwei (0 BNB)
+                      </div>
+                    </div>
                     <div className="border-b pb-3">
                       <span className="font-semibold text-gray-600">
                         Gas Used:
@@ -862,25 +936,25 @@ const SearchResultsPage = memo(({ query, navigate }) => {
                         {result.data.receipt.gasUsed.toString()}
                       </div>
                     </div>
-                    <div className="border-b pb-3">
-                      <span className="font-semibold text-gray-600">
-                        Status:
-                      </span>
-                      <div className="mt-1">
-                        <span
-                          className={`px-3 py-1 rounded text-sm font-semibold ${
-                            result.data.receipt.status === 1
-                              ? "bg-green-100 text-green-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
-                        >
-                          {result.data.receipt.status === 1
-                            ? "Success"
-                            : "Failed"}
-                        </span>
+                  </>
+                )}
+                {result.data.internalTxns.length > 0 && (
+                  <div className="border-b pb-3">
+                    <span className="font-semibold text-gray-600">
+                      Internal Transactions:
+                    </span>
+                    <div className="mt-1">
+                      <button className="text-blue-600 mb-2">All Transfers</button>
+                      <div className="space-y-2">
+                        {result.data.internalTxns.map((tx, idx) => (
+                          <div key={idx} className="text-sm text-gray-600">
+                            {tx.type}: {tx.value} BNB ($0.83) from {tx.from} to{" "}
+                            {tx.to}
+                          </div>
+                        ))}
                       </div>
                     </div>
-                  </>
+                  </div>
                 )}
               </div>
             </div>
@@ -1021,6 +1095,13 @@ export default function App() {
         }
         if (currentPath === "/search") {
           return <SearchResultsPage query={searchQuery} navigate={navigate} />;
+        }
+
+        // Router component ke andar
+        if (currentPath.startsWith("/search")) {
+          const urlParams = new URLSearchParams(currentPath.split('?')[1]);
+          const query = urlParams.get('query') || '';
+          return <SearchResultsPage query={query} navigate={navigate} />;
         }
         return (
           <Home
