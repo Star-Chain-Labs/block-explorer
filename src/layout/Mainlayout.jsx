@@ -9,7 +9,7 @@ export const MainLayout = () => {
     <div className="flex flex-col min-h-screen">
       {/* <Header /> */}
       <Navbar />
-      <main className="flex-1 bg-gray-50 md:pt-24 pt-24 ">
+      <main className="flex-1 bg-gray-50 md:pt-24 pt-24 min-h-screen">
         <Outlet />
       </main>
       <Footer />

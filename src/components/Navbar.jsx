@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   FaHome,
   FaCubes,
@@ -18,6 +18,7 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRefs = useRef([]);
   const timeoutRef = useRef(null);
+  const navigate = useNavigate()
 
   // Handle clicks outside to close dropdown and mobile menu
   useEffect(() => {
@@ -66,7 +67,7 @@ const Navbar = () => {
     <nav className="fixed  top-0 left-0 w-full bg-white text-black shadow-md z-40 border-b border-gray-200">
       <div className="w-full mx-auto flex justify-between items-center px-4 py-5 sm:px-6 lg:px-8">
         {/* Left - Logo */}
-        <div className="flex items-center gap-2">
+        <div onClick={() => navigate("/")} className="flex items-center gap-2 cursor-pointer">
           <img src={logo} alt="logo" className="w-14 h-14 object-cover" />
           <div className="flex flex-col">
             <span className="text-black font-bold text-xl">
@@ -130,7 +131,7 @@ const Navbar = () => {
 
               {item.dropdown && isDropdownOpen === index && (
                 <div
-                  className="lg:absolute lg:top-full lg:left-0 lg:mt-2 lg:w-60 lg:bg-white lg:border lg:border-gray-300 lg:rounded-lg lg:shadow-lg flex flex-col w-full bg-gray-50 lg:bg-white"
+                  className="lg:absolute lg:top-full lg:left-0 lg:mt-2 lg:w-60 lg:bg-white lg:border lg:border-gray-300 lg:rounded-lg lg:shadow-lg flex flex-col w-full bg-gray-50 "
                   onMouseEnter={() => item.dropdown && handleMouseEnter(index)}
                   onMouseLeave={() => item.dropdown && handleMouseLeave(index)}
                 >

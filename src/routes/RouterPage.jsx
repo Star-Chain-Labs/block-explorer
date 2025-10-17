@@ -17,6 +17,7 @@ import TokenTransfer from "../pages/TokenTransfer";
 import TransactionDetails from "../pages/TransactionDetails";
 import AllTokens from "../pages/AllTokens";
 import VerifyToken from "../pages/VerifyToken";
+import SearchResultsPage from "../pages/SearchResults";
 
 export default function RouterPage() {
   return (
@@ -42,6 +43,11 @@ export default function RouterPage() {
           path="/blockchain/transaction-details"
           element={<TransactionDetails />}
         />
+        <Route
+          path="/search"
+          element={<SearchResultsPage />}
+        />
+        
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/forget-password" element={<ForgetPassword />} />

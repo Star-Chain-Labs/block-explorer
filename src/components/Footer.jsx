@@ -1,19 +1,32 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  FaTwitter,
-  FaFacebookF,
-  FaInstagram,
-  FaTimes,
-  FaCheckCircle,
-} from "react-icons/fa";
-import { SiBnbchain } from "react-icons/si";
+  Twitter,
+  Facebook,
+  Instagram,
+  X,
+  CheckCircle,
+  Copy,
+} from "lucide-react";
 import metaimg from "../assets/metamask.png";
 import logo from "../assets/logo.png";
 
 const Footer = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [popupStatus, setPopupStatus] = useState("idle"); // idle, loading, success, error
+  const [copied, setCopied] = useState(null);
+
+  const networkDetails = [
+    { label: "Network", value: "CBM Network" },
+    { label: "Chain ID", value: "706" },
+    { label: "Symbol", value: "CBM" },
+  ];
+
+  const handleCopy = (text) => {
+    navigator.clipboard.writeText(text);
+    setCopied(text);
+    setTimeout(() => setCopied(null), 2000);
+  };
 
   const addCBMNetwork = async () => {
     if (window.ethereum) {
@@ -66,60 +79,93 @@ const Footer = () => {
       {/* Professional Popup Modal */}
       {showPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative transform transition-all animate-fade-in">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all animate-fade-in">
+            {/* Close Button */}
             <button
               onClick={() => setShowPopup(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10"
             >
-              <FaTimes className="w-5 h-5" />
+              <X className="w-5 h-5" />
             </button>
 
+            {/* Loading State */}
             {popupStatus === "loading" && (
-              <div className="text-center">
+              <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-8 text-center">
                 <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
                   Adding Network
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-gray-600 text-sm">
                   Please confirm the transaction in MetaMask...
                 </p>
               </div>
             )}
 
+            {/* Success State */}
             {popupStatus === "success" && (
-              <div className="text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <FaCheckCircle className="w-10 h-10 text-green-500" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                  Network Added Successfully!
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  CBM Network has been added to your MetaMask
-                </p>
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-left">
-                  <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Network:</span> CBM Network
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Chain ID:</span> 706
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Symbol:</span> CBM
+              <>
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-8 text-center border-b border-green-100">
+                  <div className="flex justify-center mb-6">
+                    <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center animate-bounce">
+                      <CheckCircle className="w-12 h-12 text-green-500" />
+                    </div>
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                    Network Added Successfully!
+                  </h3>
+                  <p className="text-gray-600 text-sm">
+                    CBM Network has been added to your MetaMask wallet
                   </p>
                 </div>
-              </div>
+
+                <div className="p-6">
+                  <div className="space-y-3">
+                    {networkDetails.map((detail, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors group cursor-pointer"
+                        onClick={() => handleCopy(detail.value)}
+                      >
+                        <div className="flex-1">
+                          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                            {detail.label}
+                          </p>
+                          <p className="text-gray-900 font-medium text-sm">
+                            {detail.value}
+                          </p>
+                        </div>
+                        <button className="ml-3 p-2 text-gray-400 hover:text-green-500 opacity-0 group-hover:opacity-100 transition-all">
+                          <Copy className="w-4 h-4" />
+                        </button>
+                        {copied === detail.value && (
+                          <span className="ml-2 text-xs text-green-600 font-medium animate-pulse">
+                            Copied!
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 border-t border-blue-100 px-6 py-4">
+                  <p className="text-xs text-blue-700 text-center leading-relaxed">
+                    💡 You can now interact with CBM Network. Make sure your
+                    wallet is connected.
+                  </p>
+                </div>
+              </>
             )}
 
+            {/* Error State */}
             {popupStatus === "error" && (
-              <div className="text-center">
-                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <FaTimes className="w-10 h-10 text-red-500" />
+              <div className="bg-gradient-to-r from-red-50 to-pink-50 p-8 text-center">
+                <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <X className="w-12 h-12 text-red-500" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
                   Failed to Add Network
                 </h3>
-                <p className="text-gray-600 mb-4">
+                <p className="text-gray-600 text-sm mb-4">
                   {!window.ethereum
                     ? "MetaMask is not installed. Please install MetaMask extension first."
                     : "There was an error adding the network. Please try again."}
@@ -129,7 +175,7 @@ const Footer = () => {
                     href="https://metamask.io/download/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-block bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors"
+                    className="inline-block bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors font-medium text-sm"
                   >
                     Install MetaMask
                   </a>
@@ -339,21 +385,21 @@ const Footer = () => {
                   target="_blank"
                   className="p-2.5 bg-white border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
                 >
-                  <FaTwitter className="text-blue-500 w-4 h-4" />
+                  <Twitter className="text-blue-500 w-4 h-4" />
                 </Link>
                 <Link
                   to="https://facebook.com"
                   target="_blank"
                   className="p-2.5 bg-white border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
                 >
-                  <FaFacebookF className="text-blue-600 w-4 h-4" />
+                  <Facebook className="text-blue-600 w-4 h-4" />
                 </Link>
                 <Link
                   to="https://instagram.com"
                   target="_blank"
                   className="p-2.5 bg-white border border-gray-200 rounded-lg hover:bg-pink-50 hover:border-pink-300 transition-all duration-300 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
                 >
-                  <FaInstagram className="text-pink-500 w-4 h-4" />
+                  <Instagram className="text-pink-500 w-4 h-4" />
                 </Link>
               </div>
             </div>
