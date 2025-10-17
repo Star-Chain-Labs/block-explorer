@@ -93,7 +93,7 @@
 
 /* Row hover */
 .custom-table .p-datatable-tbody > tr:hover {
-  background-color: #e0f2fb !important;
+  background-color: #eceeee !important;
   transition: background 0.2s ease-in-out;
 }
 

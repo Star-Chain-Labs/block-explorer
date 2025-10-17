@@ -21,7 +21,7 @@ const Transaction = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       console.log("Fetching transactions from RPC:", RPC_URL);
       const provider = new ethers.JsonRpcProvider(RPC_URL);
 
@@ -37,7 +37,7 @@ const Transaction = () => {
           const block = await provider.getBlock(i, true);
           if (block && block.transactions.length > 0) {
             const timeAgo = Math.floor((Date.now() / 1000 - block.timestamp) / 60);
-            
+
             // Add block info to blocksData for stats
             blocksData.push({
               number: block.number,
@@ -56,7 +56,7 @@ const Transaction = () => {
               try {
                 const tx = await provider.getTransaction(txHash);
                 const receipt = await provider.getTransactionReceipt(txHash);
-                
+
                 if (tx && receipt) {
                   const gasFee = BigInt(receipt.gasUsed) * BigInt(tx.gasPrice || 0);
                   totalGas += gasFee;
@@ -89,11 +89,11 @@ const Transaction = () => {
 
       // Calculate TPS (rough estimate)
       const prevBlock = await provider.getBlock(latestBlockNumber - 1);
-      const blockTime = prevBlock && prevBlock.timestamp 
-        ? (latestBlockNumber.timestamp - prevBlock.timestamp).toFixed(2) 
+      const blockTime = prevBlock && prevBlock.timestamp
+        ? (latestBlockNumber.timestamp - prevBlock.timestamp).toFixed(2)
         : "3"; // default 3 seconds
-      const tps = blockTime > 0 
-        ? (totalTxCount / (10 * parseFloat(blockTime))).toFixed(2) 
+      const tps = blockTime > 0
+        ? (totalTxCount / (10 * parseFloat(blockTime))).toFixed(2)
         : "0";
 
       const apiData = {
@@ -216,12 +216,7 @@ const Transaction = () => {
           title={rowData.from}
           onClick={async (e) => {
             e.stopPropagation();
-            try {
-              await navigator.clipboard.writeText(rowData.from);
-              console.log("Copied address:", rowData.from);
-            } catch (err) {
-              console.error("Copy failed:", err);
-            }
+            navigate(`/search?query=${encodeURIComponent(rowData.from)}`);
           }}
         >
           {rowData.from.slice(0, 8)}...
@@ -234,8 +229,12 @@ const Transaction = () => {
       minWidth: "200px",
       body: (rowData) => (
         <span
-          className="text-gray-700 font-mono text-sm truncate"
+          className="text-gray-700 font-mono text-sm truncate cursor-pointer hover:text-blue-600 transition-colors"
           title={rowData.to === "Contract Creation" ? rowData.to : rowData.to}
+          onClick={async (e) => {
+            e.stopPropagation();
+            navigate(`/search?query=${encodeURIComponent(rowData.to)}`);
+          }}
         >
           {rowData.to === "Contract Creation"
             ? "Contract Creation"
@@ -378,33 +377,11 @@ const Transaction = () => {
 
       {/* Stats Cards */}
       {Object.keys(stats).length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 p-6 bg-white">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-6 bg-white">
           <div className="bg-white border border-green-200 p-4 rounded-lg shadow-sm">
             <p className="text-gray-500 font-medium text-sm">Total Transactions</p>
             <p className="text-2xl font-bold text-green-600 mt-1">
               {stats.totalTransactions?.toLocaleString() || 0}
-            </p>
-          </div>
-          <div className="bg-white border border-blue-200 p-4 rounded-lg shadow-sm">
-            <p className="text-gray-500 font-medium text-sm">TPS</p>
-            <p className="text-2xl font-bold text-blue-600 mt-1">{stats.tps || 0}</p>
-          </div>
-          <div className="bg-white border border-orange-200 p-4 rounded-lg shadow-sm">
-            <p className="text-gray-500 font-medium text-sm">Total Gas Fee</p>
-            <p className="text-2xl font-bold text-orange-600 mt-1">
-              {formatGasFee(stats.totalGasFee)} CBM
-            </p>
-          </div>
-          <div className="bg-white border border-purple-200 p-4 rounded-lg shadow-sm">
-            <p className="text-gray-500 font-medium text-sm">Median Gas Price</p>
-            <p className="text-2xl font-bold text-purple-600 mt-1">
-              {stats.medGasPrice} Gwei
-            </p>
-          </div>
-          <div className="bg-white border border-indigo-200 p-4 rounded-lg shadow-sm">
-            <p className="text-gray-500 font-medium text-sm">CBM Price</p>
-            <p className="text-2xl font-bold text-indigo-600 mt-1">
-              ${stats.bnbPrice?.toFixed(2) || 0}
             </p>
           </div>
           <div className="bg-white border border-gray-200 p-4 rounded-lg shadow-sm">
@@ -413,6 +390,31 @@ const Transaction = () => {
               {stats.totalBlocks?.toLocaleString() || 0}
             </p>
           </div>
+
+          <div className="bg-white border border-orange-200 p-4 rounded-lg shadow-sm">
+            <p className="text-gray-500 font-medium text-sm">Total Gas Fee</p>
+            <p className="text-2xl font-bold text-orange-600 mt-1">
+              {formatGasFee(stats.totalGasFee)} CBM
+            </p>
+          </div>
+          <div className="bg-white border border-indigo-200 p-4 rounded-lg shadow-sm">
+            <p className="text-gray-500 font-medium text-sm">CBM Price</p>
+            <p className="text-2xl font-bold text-indigo-600 mt-1">
+              ${stats.bnbPrice?.toFixed(2) || 0}
+            </p>
+          </div>
+          {/* <div className="bg-white border border-purple-200 p-4 rounded-lg shadow-sm">
+            <p className="text-gray-500 font-medium text-sm">Median Gas Price</p>
+            <p className="text-2xl font-bold text-purple-600 mt-1">
+              {stats.medGasPrice} Gwei
+            </p>
+          </div> */}
+          {/* <div className="bg-white border border-blue-200 p-4 rounded-lg shadow-sm">
+            <p className="text-gray-500 font-medium text-sm">TPS</p>
+            <p className="text-2xl font-bold text-blue-600 mt-1">{stats.tps || 0}</p>
+          </div> */}
+
+
         </div>
       )}
 
@@ -436,7 +438,7 @@ const Transaction = () => {
           </div>
         ) : (
           <div className="mb-4">
-            <div className="flex justify-between items-center mb-4">
+            {/* <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-gray-800">
                 Transactions ({transactions.length})
               </h2>
@@ -446,11 +448,11 @@ const Transaction = () => {
               >
                 Refresh
               </button>
-            </div>
+            </div> */}
             <Table
               columns={tableColumns}
               data={transactions}
-              navigatePath="/transaction-details"
+              // navigatePath="/transaction-details"
               navigateState={(rowData) => ({
                 transaction: rowData.fullData,
                 stats: stats
