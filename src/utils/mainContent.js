@@ -10,8 +10,8 @@ export const MainContent = {
 };
 
 export const backendConfig = {
-    // base: "http://192.168.1.15:3001/api",
-    // origin: "http://192.168.1.15:3001",
+    // base: "http://192.168.1.3:8080/api",
+    // origin: "http://192.168.1.3:8080",
 
     base: "https://api.p5.starchainlabs.in/api",
     origin: "https://api.p5.starchainlabs.in",
