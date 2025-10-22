@@ -161,7 +161,7 @@ const TopAccounts = () => {
       try {
         // ⚠️ Change this URL to your backend route
         const res = await fetch(
-          "http://localhost:8080/api/transactions/get-rbm-holders"
+          "https://api.cbmscan.com/api/transactions/get-rbm-holders"
         );
         const data = await res.json();
 
