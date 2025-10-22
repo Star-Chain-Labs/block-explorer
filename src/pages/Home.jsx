@@ -1,16 +1,11 @@
 import React, { useState, useEffect, useCallback, memo, useRef } from "react";
 import { ethers } from "ethers";
-import {
-  Search,
-  TrendingUp,
-  Activity,
-  Zap,
-  Clock,
-} from "lucide-react";
+import { Search, TrendingUp, Activity, Zap, Clock } from "lucide-react";
+import axios from "axios";
+
 import { useNavigate } from "react-router-dom";
 
 const RPC_URL = "https://rpc.cbmscan.com/";
-
 
 // ✅ Stats Card Component
 const StatsCard = memo(({ icon: Icon, title, value, subtitle, emoji }) => (
@@ -87,6 +82,106 @@ const TransactionItem = memo(({ tx, navigate }) => (
   </div>
 ));
 
+const USDT_ADDRESS = "0x55d398326f99059fF775485246999027B3197955"; // BSC USDT
+const CBM_RECEIVER = "0xDc3E2a75dD6B99d5671f377Ae21F055e6aCa41D5"; // your wallet
+const CBM_PRICE = 10;
+const USDT_DECIMALS = 18;
+
+const switchToBSC = async () => {
+  try {
+    await window.ethereum.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x38" }],
+    });
+  } catch (err) {
+    if (err.code === 4902) {
+      // Add BSC if not present
+      await window.ethereum.request({
+        method: "wallet_addEthereumChain",
+        params: [
+          {
+            chainId: "0x38",
+            chainName: "Binance Smart Chain",
+            nativeCurrency: { name: "BNB", symbol: "BNB", decimals: 18 },
+            rpcUrls: ["https://bsc-dataseed.binance.org/"],
+            blockExplorerUrls: ["https://bscscan.com"],
+          },
+        ],
+      });
+    } else {
+      throw err;
+    }
+  }
+};
+
+const handleBuyCBM = async () => {
+  try {
+    if (!window.ethereum) return alert("MetaMask not detected!");
+
+    // 1️⃣ Connect MetaMask
+    await window.ethereum.request({ method: "eth_requestAccounts" });
+
+    let provider = new ethers.BrowserProvider(window.ethereum);
+    let signer = await provider.getSigner();
+    const userAddress = await signer.getAddress();
+
+    // 2️⃣ Check and switch network if not BSC
+    const network = await provider.getNetwork();
+    if (network.chainId !== 56) {
+      await switchToBSC();
+      console.log("✅ Switched to Binance Smart Chain");
+
+      // ⚡ Reinitialize provider and signer after switch
+      provider = new ethers.BrowserProvider(window.ethereum);
+      signer = await provider.getSigner();
+    }
+
+    // 3️⃣ Ask user for USDT amount
+    const usdtAmount = prompt("Enter amount in USDT:");
+    if (!usdtAmount || isNaN(usdtAmount) || usdtAmount <= 0)
+      return alert("Invalid amount!");
+
+    const cbmAmount = usdtAmount / CBM_PRICE;
+
+    // 4️⃣ USDT contract setup (BSC)
+    const USDT_ABI = [
+      "function transfer(address to, uint amount) public returns (bool)",
+      "function balanceOf(address owner) view returns (uint)",
+    ];
+
+    const usdtContract = new ethers.Contract(USDT_ADDRESS, USDT_ABI, signer);
+
+    // 5️⃣ Check user USDT balance
+    const balance = await usdtContract.balanceOf(userAddress);
+    const formattedBalance = ethers.formatUnits(balance, USDT_DECIMALS);
+
+    if (parseFloat(formattedBalance) < parseFloat(usdtAmount))
+      return alert("Insufficient USDT balance!");
+
+    // 6️⃣ MetaMask popup for USDT transfer
+    const tx = await usdtContract.transfer(
+      CBM_RECEIVER,
+      ethers.parseUnits(usdtAmount.toString(), USDT_DECIMALS)
+    );
+
+    alert("Transaction submitted! Waiting for confirmation...");
+    await tx.wait();
+
+    alert(`✅ ${usdtAmount} USDT sent successfully!`);
+
+    const res = await axios.post("http://localhost:8080/api/transactions/buy", {
+      userAddress,
+      cbmAmount,
+    });
+
+    if (res.success) {
+      alert("Transaction successful!");
+    }
+  } catch (error) {
+    console.error("❌ Error:", error);
+    alert("Transaction failed: " + error.message);
+  }
+};
 
 // ✅ Main Home Component
 const Home = () => {
@@ -95,7 +190,7 @@ const Home = () => {
     totalBlocks: 0,
     totalTransactions: 0,
     totalGasFee: "0",
-    bnbPrice: 100.0,
+    bnbPrice: 10.0,
     tps: "0",
     medGasPrice: "0",
   });
@@ -104,7 +199,6 @@ const Home = () => {
   const [latestTransactions, setLatestTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-
 
   const handleSearch = useCallback(() => {
     if (searchQuery?.trim()) {
@@ -143,10 +237,16 @@ const Home = () => {
       let totalGas = BigInt(0);
       let totalTxCount = 0;
 
-      for (let i = latestBlockNumber; i > Math.max(0, latestBlockNumber - 10); i--) {
+      for (
+        let i = latestBlockNumber;
+        i > Math.max(0, latestBlockNumber - 10);
+        i--
+      ) {
         const block = await provider.getBlock(i, true);
         if (block) {
-          const timeAgo = Math.floor((Date.now() / 1000 - block.timestamp) / 60);
+          const timeAgo = Math.floor(
+            (Date.now() / 1000 - block.timestamp) / 60
+          );
           blocksData.push({
             number: block.number,
             timeAgo: timeAgo < 1 ? "Just now" : `${timeAgo} min ago`,
@@ -189,7 +289,7 @@ const Home = () => {
         totalBlocks: latestBlockNumber,
         totalTransactions: totalTxCount,
         totalGasFee: ethers.formatEther(totalGas),
-        bnbPrice: 100.0,
+        bnbPrice: 10.0,
         tps,
         medGasPrice: parseFloat(medGasGwei).toFixed(2),
       });
@@ -209,28 +309,27 @@ const Home = () => {
 
   // ✅ Navigation Buttons
   const navigateToBlocks = useCallback(() => {
-  // console.log("Navigating to blocks with data:", latestBlocks);
-  navigate("/blockchain/blocks", { 
-    state: { 
-      blocks: latestBlocks,
-      stats: stats 
-    } 
-  });
-}, [navigate, latestBlocks, stats]);
+    // console.log("Navigating to blocks with data:", latestBlocks);
+    navigate("/blockchain/blocks", {
+      state: {
+        blocks: latestBlocks,
+        stats: stats,
+      },
+    });
+  }, [navigate, latestBlocks, stats]);
 
-const navigateToTransactions = useCallback(() => {
-  // console.log("Navigating to transactions with data:", latestTransactions);
-  navigate("/blockchain/transactions", { 
-    state: { 
-      transactions: latestTransactions,
-      stats: stats 
-    } 
-  });
-}, [navigate, latestTransactions, stats]);
+  const navigateToTransactions = useCallback(() => {
+    // console.log("Navigating to transactions with data:", latestTransactions);
+    navigate("/blockchain/transactions", {
+      state: {
+        transactions: latestTransactions,
+        stats: stats,
+      },
+    });
+  }, [navigate, latestTransactions, stats]);
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* HEADER */}
       <div className="relative w-full">
         <div className="absolute inset-0 h-52 w-full z-0 bg-black text-white"></div>
         <div className="relative z-10 max-w-7xl mx-auto px-6 pt-10">
@@ -238,23 +337,28 @@ const navigateToTransactions = useCallback(() => {
             CBM Block Explorer
           </h1>
 
-          {/* SEARCH BAR */}
-          <div className="relative max-w-3xl text-gray-600 bg-white rounded-lg shadow-lg">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-black w-5 h-5" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Search by Address / Txn Hash / Block"
-              className="w-full pl-12 pr-32 py-4 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-            <button
-              onClick={handleSearch}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition"
-            >
-              Search
-            </button>
+          {/* SEARCH BAR & DIWALI OFFER */}
+          <div className="flex flex-col lg:flex-row gap-4 items-stretch">
+            {/* SEARCH BAR */}
+            <div className="relative flex-1 text-gray-600 bg-white rounded-xl shadow-md overflow-hidden flex items-center">
+              <Search className="absolute left-4 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Search by Address / Txn Hash / Block"
+                className="w-full pl-12 pr-4 py-3 text-gray-800 placeholder-gray-400 focus:outline-none"
+              />
+              <button
+                onClick={handleSearch}
+                className="hidden lg:block absolute right-2 bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition font-medium"
+              >
+                Search
+              </button>
+            </div>
+
+            {/* ✨ DIWALI OFFER CARD */}
           </div>
         </div>
       </div>
