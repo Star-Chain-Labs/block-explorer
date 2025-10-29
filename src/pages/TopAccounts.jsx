@@ -302,7 +302,7 @@ const TopAccounts = () => {
     const fetchHolders = async () => {
       try {
         const res = await fetch(
-          "http://localhost:8080/api/transactions/get-cbm-holders"
+          "https://api.cbmscan.com/api/transactions/get-cbm-holders"
         );
         const data = await res.json();
 
