@@ -187,7 +187,7 @@ const Footer = () => {
       )}
 
       <footer className="bg-gradient-to-br from-gray-50 to-gray-100 border-t border-gray-200 text-gray-800">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-12">
+        <div className=" mx-auto px-6 lg:px-8 py-12">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
             {/* Left - Powered by CBM Smart Chain */}
             <div className="lg:col-span-1">

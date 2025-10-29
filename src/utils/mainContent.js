@@ -1,35 +1,33 @@
 import axios from "axios";
 
 export const MainContent = {
-    appName: "CBM Block Explorer",
-    appURL: "",
-    contactNo: "+0123456789",
-    email: "blockexplorer@example.com",
-    address: "",
-    telegram_link: "https://t.me/YourTelegramUsername",
+  appName: "CBM Block Explorer",
+  appURL: "",
+  contactNo: "+0123456789",
+  email: "blockexplorer@example.com",
+  address: "",
+  telegram_link: "https://t.me/YourTelegramUsername",
 };
 
 export const backendConfig = {
-    // base: "http://192.168.1.3:8080/api",
-    // origin: "http://192.168.1.3:8080",
+  base: "http://localhost:8080/api",
+  origin: "http://localhost:8080",
 
-    base: "https://api.p5.starchainlabs.in/api",
-    origin: "https://api.p5.starchainlabs.in",
+  // base: "https://api.p5.starchainlabs.in/api",
+  // origin: "https://api.p5.starchainlabs.in",
 };
 
-
 export const Axios = axios.create({
-    baseURL: backendConfig.base,
-    withCredentials: true,
+  baseURL: backendConfig.base,
+  withCredentials: true,
 });
 Axios.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem("token"); // get token
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => Promise.reject(error)
+  (config) => {
+    const token = localStorage.getItem("token"); // get token
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
 );
-

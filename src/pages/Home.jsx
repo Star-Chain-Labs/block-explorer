@@ -7,7 +7,6 @@ import { useNavigate } from "react-router-dom";
 
 const RPC_URL = "https://rpc.cbmscan.com/";
 
-// ✅ Stats Card Component
 const StatsCard = memo(({ icon: Icon, title, value, subtitle, emoji }) => (
   <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
     <div className="flex items-center justify-between">
@@ -25,7 +24,6 @@ const StatsCard = memo(({ icon: Icon, title, value, subtitle, emoji }) => (
   </div>
 ));
 
-// ✅ Block Item
 const BlockItem = memo(({ block }) => (
   <div className="border-b border-gray-100 pb-3 last:border-0">
     <div className="flex justify-between items-start">
@@ -51,39 +49,46 @@ const BlockItem = memo(({ block }) => (
   </div>
 ));
 
-// ✅ Transaction Item
-const TransactionItem = memo(({ tx, navigate }) => (
-  <div
-    onClick={() => navigate(`/search?query=${encodeURIComponent(tx.hash)}`)}
-    className="border-b border-gray-100 pb-3 last:border-0 cursor-pointer"
-  >
-    <div className="flex justify-between items-start">
-      <div className="flex-1">
-        <div className="text-sm font-mono text-blue-600 mb-1">
-          {tx.hash.slice(0, 16)}...
+const TransactionItem = memo(({ tx, navigate }) => {
+  const truncateMiddle = (str, front = 10, back = 8) => {
+    if (!str) return "";
+    if (str.length <= front + back) return str;
+    return `${str.slice(0, front)}...${str.slice(-back)}`;
+  };
+
+  return (
+    <div
+      onClick={() => navigate(`/search?query=${encodeURIComponent(tx.hash)}`)}
+      className="border-b border-gray-100 pb-3 last:border-0 cursor-pointer"
+    >
+      <div className="flex justify-between items-start">
+        <div className="flex-1">
+          <div className="text-sm font-mono text-blue-600 mb-1">
+            {truncateMiddle(tx.hash, 12, 10)}
+          </div>
+          <div className="text-xs text-gray-600">
+            From: <span className="font-mono">{truncateMiddle(tx.from)}</span>
+          </div>
+          <div className="text-xs text-gray-600">
+            To:{" "}
+            <span className="font-mono">
+              {typeof tx.to === "string" ? truncateMiddle(tx.to) : tx.to}
+            </span>
+          </div>
         </div>
-        <div className="text-xs text-gray-600">
-          From: <span className="font-mono">{tx.from.slice(0, 10)}...</span>
+        <div className="text-right text-sm">
+          <div className="font-semibold text-gray-800">
+            {parseFloat(tx.value).toFixed(4)} CBM
+          </div>
+          <div className="text-xs text-gray-500">{tx.timeAgo}</div>
         </div>
-        <div className="text-xs text-gray-600">
-          To:{" "}
-          <span className="font-mono">
-            {typeof tx.to === "string" ? tx.to.slice(0, 10) + "..." : tx.to}
-          </span>
-        </div>
-      </div>
-      <div className="text-right text-sm">
-        <div className="font-semibold text-gray-800">
-          {parseFloat(tx.value).toFixed(4)} CBM
-        </div>
-        <div className="text-xs text-gray-500">{tx.timeAgo}</div>
       </div>
     </div>
-  </div>
-));
+  );
+});
 
-const USDT_ADDRESS = "0x55d398326f99059fF775485246999027B3197955"; // BSC USDT
-const CBM_RECEIVER = "0xDc3E2a75dD6B99d5671f377Ae21F055e6aCa41D5"; // your wallet
+const USDT_ADDRESS = "0x55d398326f99059fF775485246999027B3197955";
+const CBM_RECEIVER = "0xDc3E2a75dD6B99d5671f377Ae21F055e6aCa41D5";
 const CBM_PRICE = 10;
 const USDT_DECIMALS = 18;
 
@@ -114,76 +119,6 @@ const switchToBSC = async () => {
   }
 };
 
-const handleBuyCBM = async () => {
-  try {
-    if (!window.ethereum) return alert("MetaMask not detected!");
-
-    // 1️⃣ Connect MetaMask
-    await window.ethereum.request({ method: "eth_requestAccounts" });
-
-    let provider = new ethers.BrowserProvider(window.ethereum);
-    let signer = await provider.getSigner();
-    const userAddress = await signer.getAddress();
-
-    // 2️⃣ Check and switch network if not BSC
-    const network = await provider.getNetwork();
-    if (network.chainId !== 56) {
-      await switchToBSC();
-      console.log("✅ Switched to Binance Smart Chain");
-
-      // ⚡ Reinitialize provider and signer after switch
-      provider = new ethers.BrowserProvider(window.ethereum);
-      signer = await provider.getSigner();
-    }
-
-    // 3️⃣ Ask user for USDT amount
-    const usdtAmount = prompt("Enter amount in USDT:");
-    if (!usdtAmount || isNaN(usdtAmount) || usdtAmount <= 0)
-      return alert("Invalid amount!");
-
-    const cbmAmount = usdtAmount / CBM_PRICE;
-
-    // 4️⃣ USDT contract setup (BSC)
-    const USDT_ABI = [
-      "function transfer(address to, uint amount) public returns (bool)",
-      "function balanceOf(address owner) view returns (uint)",
-    ];
-
-    const usdtContract = new ethers.Contract(USDT_ADDRESS, USDT_ABI, signer);
-
-    // 5️⃣ Check user USDT balance
-    const balance = await usdtContract.balanceOf(userAddress);
-    const formattedBalance = ethers.formatUnits(balance, USDT_DECIMALS);
-
-    if (parseFloat(formattedBalance) < parseFloat(usdtAmount))
-      return alert("Insufficient USDT balance!");
-
-    // 6️⃣ MetaMask popup for USDT transfer
-    const tx = await usdtContract.transfer(
-      CBM_RECEIVER,
-      ethers.parseUnits(usdtAmount.toString(), USDT_DECIMALS)
-    );
-
-    alert("Transaction submitted! Waiting for confirmation...");
-    await tx.wait();
-
-    alert(`✅ ${usdtAmount} USDT sent successfully!`);
-
-    const res = await axios.post("http://localhost:8080/api/transactions/buy", {
-      userAddress,
-      cbmAmount,
-    });
-
-    if (res.success) {
-      alert("Transaction successful!");
-    }
-  } catch (error) {
-    console.error("❌ Error:", error);
-    alert("Transaction failed: " + error.message);
-  }
-};
-
-// ✅ Main Home Component
 const Home = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState({
@@ -214,7 +149,6 @@ const Home = () => {
     }
   };
 
-  // ✅ Fetch Blockchain Data
   const fetchChainData = useCallback(async () => {
     try {
       setLoading(true);
@@ -307,7 +241,6 @@ const Home = () => {
     fetchChainData();
   }, [fetchChainData]);
 
-  // ✅ Navigation Buttons
   const navigateToBlocks = useCallback(() => {
     // console.log("Navigating to blocks with data:", latestBlocks);
     navigate("/blockchain/blocks", {
