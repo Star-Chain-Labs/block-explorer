@@ -108,7 +108,7 @@ const TokenDetails = () => {
 
         {/* 🧾 Token Header Card */}
         <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden mb-6">
-          <div className="text-black px-6 py-8">
+          <div className="bg-gradient-to-r from-blue-400 to-indigo-500 px-6 py-8">
             <div className="flex items-start justify-between flex-wrap gap-4">
               <div>
                 <div className="flex items-center gap-3 mb-2">
