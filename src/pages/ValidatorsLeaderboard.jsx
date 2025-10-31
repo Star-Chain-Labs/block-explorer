@@ -16,6 +16,12 @@ import Table from "../components/Table";
 const API_URL = "http://localhost:8080/api/transactions/get-validators"; // or null to force simulation
 const POLL_INTERVAL_MS = 5000; // 5s polling (adjust as needed)
 
+// Truncate helper
+const truncate = (text, start = 10, end = 10) => {
+  if (!text || typeof text !== "string") return "N/A";
+  return `${text.slice(0, start)}......${text.slice(-end)}`;
+};
+
 const STATIC_VALIDATORS = [
   "0xF4F5340E741f3347a93f26e5110aDE6eD9406323",
   "0x3ef6381B518f35c1186707B452d3B689B3dcEE12",
@@ -41,7 +47,7 @@ const STATIC_VALIDATORS = [
 
 const tableColumns = [
   { field: "no", header: "No", minWidth: "60px" },
-  { field: "address", header: "Validator Address", minWidth: "360px" },
+  { field: "address", header: "Validator Address", body: (rowData) => truncate(rowData.address) }, // truncate helper minWidth: "360px" },
   { field: "signedBlocks", header: "Signed Blocks", minWidth: "140px" },
   { field: "lastSeen", header: "Last Seen", minWidth: "160px" },
   { field: "uptime", header: "Uptime %", minWidth: "120px" },

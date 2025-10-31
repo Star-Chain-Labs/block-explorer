@@ -58,18 +58,17 @@ const TransactionItem = memo(({ tx, navigate }) => {
 
   return (
     <div
-      onClick={() => navigate(`/search?query=${encodeURIComponent(tx.hash)}`)}
       className="border-b border-gray-100 pb-3 last:border-0 cursor-pointer"
     >
       <div className="flex justify-between items-start">
         <div className="flex-1">
-          <div className="text-sm font-mono text-blue-600 mb-1">
+          <div onClick={() => navigate(`/search?query=${encodeURIComponent(tx.hash)}`)} className="text-sm font-mono text-blue-600 hover:text-blue-500 mb-1">
             {truncateMiddle(tx.hash, 12, 10)}
           </div>
-          <div className="text-xs text-gray-600">
+          <div onClick={() => navigate(`/search?query=${encodeURIComponent(tx.from)}`)} className="text-xs text-gray-600 hover:text-blue-500 mb-1">
             From: <span className="font-mono">{truncateMiddle(tx.from)}</span>
           </div>
-          <div className="text-xs text-gray-600">
+          <div onClick={() => navigate(`/search?query=${encodeURIComponent(tx.to)}`)} className="text-xs text-gray-600 hover:text-blue-500">
             To:{" "}
             <span className="font-mono">
               {typeof tx.to === "string" ? truncateMiddle(tx.to) : tx.to}
@@ -149,6 +148,95 @@ const Home = () => {
     }
   };
 
+  // const fetchChainData = useCallback(async () => {
+  //   try {
+  //     setLoading(true);
+  //     const provider = new ethers.JsonRpcProvider(RPC_URL);
+
+  //     const latestBlockNumber = await provider.getBlockNumber();
+  //     const latestBlock = await provider.getBlock(latestBlockNumber, true);
+  //     const prevBlock = await provider.getBlock(latestBlockNumber - 1);
+
+  //     const blockTime =
+  //       latestBlock.timestamp && prevBlock.timestamp
+  //         ? (latestBlock.timestamp - prevBlock.timestamp).toFixed(2)
+  //         : "0";
+
+  //     const gasPrice = await provider.getFeeData();
+  //     const medGasGwei = ethers.formatUnits(gasPrice.gasPrice || 0, "gwei");
+
+  //     const blocksData = [];
+  //     const transactionsData = [];
+  //     let totalGas = BigInt(0);
+  //     let totalTxCount = 0;
+
+  //     for (
+  //       let i = latestBlockNumber;
+  //       i > Math.max(0, latestBlockNumber - 10);
+  //       i--
+  //     ) {
+  //       const block = await provider.getBlock(i, true);
+  //       if (block) {
+  //         const timeAgo = Math.floor(
+  //           (Date.now() / 1000 - block.timestamp) / 60
+  //         );
+  //         blocksData.push({
+  //           number: block.number,
+  //           timeAgo: timeAgo < 1 ? "Just now" : `${timeAgo} min ago`,
+  //           validator: block.miner
+  //             ? `${block.miner.slice(0, 10)}...${block.miner.slice(-8)}`
+  //             : "N/A",
+  //           txns: block.transactions.length,
+  //           gasUsed: ethers.formatUnits(block.gasUsed || 0, "gwei"),
+  //         });
+
+  //         totalTxCount += block.transactions.length;
+
+  //         for (const txHash of block.transactions.slice(0, 2)) {
+  //           const tx = await provider.getTransaction(txHash);
+  //           const receipt = await provider.getTransactionReceipt(txHash);
+  //           if (tx && receipt) {
+  //             const gasFee = BigInt(receipt.gasUsed) * BigInt(tx.gasPrice || 0);
+  //             totalGas += gasFee;
+
+  //             transactionsData.push({
+  //               hash: tx.hash,
+  //               from: tx.from,
+  //               to: tx.to || "Contract Creation",
+  //               value: ethers.formatEther(tx.value),
+  //               gasUsed: receipt.gasUsed.toString(),
+  //               gasFee: ethers.formatEther(gasFee),
+  //               timeAgo: timeAgo < 1 ? "Just now" : `${timeAgo} min ago`,
+  //             });
+  //           }
+  //         }
+  //       }
+  //     }
+
+  //     const tps =
+  //       blockTime > 0
+  //         ? (totalTxCount / (10 * parseFloat(blockTime))).toFixed(2)
+  //         : "0";
+
+  //     setStats({
+  //       totalBlocks: latestBlockNumber,
+  //       totalTransactions: totalTxCount,
+  //       totalGasFee: ethers.formatEther(totalGas),
+  //       bnbPrice: 10.0,
+  //       tps,
+  //       medGasPrice: parseFloat(medGasGwei).toFixed(2),
+  //     });
+
+  //     setLatestBlocks(blocksData);
+  //     setLatestTransactions(transactionsData.slice(0, 10));
+  //   } catch (err) {
+  //     console.error("Error fetching chain data:", err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, []);
+
+
   const fetchChainData = useCallback(async () => {
     try {
       setLoading(true);
@@ -178,9 +266,7 @@ const Home = () => {
       ) {
         const block = await provider.getBlock(i, true);
         if (block) {
-          const timeAgo = Math.floor(
-            (Date.now() / 1000 - block.timestamp) / 60
-          );
+          const timeAgo = Math.floor((Date.now() / 1000 - block.timestamp) / 60);
           blocksData.push({
             number: block.number,
             timeAgo: timeAgo < 1 ? "Just now" : `${timeAgo} min ago`,
@@ -200,11 +286,54 @@ const Home = () => {
               const gasFee = BigInt(receipt.gasUsed) * BigInt(tx.gasPrice || 0);
               totalGas += gasFee;
 
+              let fromAddress = tx.from;
+              let toAddress = tx.to || "Contract Creation";
+              let value = ethers.formatEther(tx.value);
+              let isTokenTransfer = false;
+
+              // ✅ Check for ERC20 Transfer event (topic[0] == transfer signature)
+              const transferSig =
+                "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef";
+
+              const transferLog = receipt.logs.find(
+                (log) => log.topics && log.topics[0] === transferSig
+              );
+
+              if (transferLog) {
+                isTokenTransfer = true;
+                fromAddress =
+                  "0x" + transferLog.topics[1].slice(26); // sender
+                toAddress =
+                  "0x" + transferLog.topics[2].slice(26); // receiver
+
+                // token amount
+                const rawValue = BigInt(transferLog.data);
+                value = ethers.formatUnits(rawValue, 18);
+
+                // Optional: token contract name
+                const tokenContract = new ethers.Contract(
+                  transferLog.address,
+                  [
+                    "function symbol() view returns (string)",
+                    "function decimals() view returns (uint8)",
+                  ],
+                  provider
+                );
+
+                try {
+                  const symbol = await tokenContract.symbol();
+                  value = `${value} ${symbol}`;
+                } catch {
+                  value = `${value} TOKEN`;
+                }
+              }
+
               transactionsData.push({
                 hash: tx.hash,
-                from: tx.from,
-                to: tx.to || "Contract Creation",
-                value: ethers.formatEther(tx.value),
+                from: fromAddress,
+                to: toAddress,
+                value,
+                isTokenTransfer,
                 gasUsed: receipt.gasUsed.toString(),
                 gasFee: ethers.formatEther(gasFee),
                 timeAgo: timeAgo < 1 ? "Just now" : `${timeAgo} min ago`,
@@ -299,8 +428,12 @@ const Home = () => {
       {/* MAIN CONTENT */}
       <div className="mx-auto px-6 mt-20">
         {loading ? (
-          <div className="text-center py-20 text-gray-600">
-            Loading blockchain data...
+          <div className=" bg-gray-50 flex items-center justify-center p-4">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600 text-lg">Loading...</p>
+              <p className="text-gray-400 text-sm mt-2">Fetching BlockChain data from API</p>
+            </div>
           </div>
         ) : (
           <>

@@ -342,6 +342,12 @@ const Blocks = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Truncate helper
+  const truncate = (text, start = 14, end = 14) => {
+    if (!text || typeof text !== "string") return "N/A";
+    return `${text.slice(0, start)}......${text.slice(-end)}`;
+  };
+
   // Fetch blocks data from the API
   const fetchBlocksData = useCallback(async () => {
     try {
@@ -516,7 +522,7 @@ const Blocks = () => {
         //   navigate(`/search?query=${encodeURIComponent(rowData.hash)}`);
         // }}
         >
-          {rowData.hash.slice(0, 10)}...
+          {truncate(rowData.hash)}
         </span>
       ),
     },

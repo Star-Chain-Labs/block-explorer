@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Table from "../components/Table";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ethers } from "ethers"; 
+import { ethers } from "ethers";
 
 const API_URL = "https://api.cbmscan.com/api/transactions/data";
 // const API_URL = "http://192.168.1.3:8080/api/transactions/data";
@@ -10,12 +10,17 @@ const Transaction = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const data = location.state;
-  console.log("Location data:", data);
 
   const [transactions, setTransactions] = useState([]);
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Truncate helper
+  const truncate = (text, start = 6, end = 6) => {
+    if (!text || typeof text !== "string") return "N/A";
+    return `${text.slice(0, start)}...${text.slice(-end)}`;
+  };
 
   // Fetch transactions data from the API
   const fetchTransactionsData = useCallback(async () => {
@@ -42,19 +47,21 @@ const Transaction = () => {
 
       // Transform API data to match expected format
       const transactionsData = apiResponse.data.map((tx) => ({
-        hash: tx.hash,
-        from: tx.from,
-        to: tx.to || "Contract Creation",
-        value: ethers.formatEther(tx.value || "0x0"),
-        gasUsed: tx.gasUsed,
-        gasPrice: tx.gasPrice,
-        blockNumber: tx.blockNumber,
-        timeStamp: tx.timeStamp,
-        gasFee: ethers.formatEther(
-          (BigInt(tx.gasUsed || "0x0") * BigInt(tx.gasPrice || "0x0")).toString()
-        ),
-        timeAgo: calculateTimeAgo(tx.timeStamp),
-      }));
+  hash: tx.hash,
+  from: tx.from,
+  to: tx.to || "Contract Creation",
+  value: ethers.formatEther(tx.value || "0x0"),
+  gasUsed: tx.gasUsed,
+  gasPrice: tx.gasPrice,
+  blockNumber: tx.blockNumber,
+  timeStamp: tx.timeStamp,
+  gasFee: ethers.formatEther(
+    (BigInt(tx.gasUsed || "0x0") * BigInt(tx.gasPrice || "0x0")).toString()
+  ),
+  timeAgo: calculateTimeAgo(tx.timeStamp),
+  type: tx.type,                    // Add this
+  tokenTransfers: tx.tokenTransfers // Add this
+}));
 
       // Compute stats (since API doesn't provide them)
       const totalTransactions = apiResponse.totalRecords;
@@ -99,13 +106,22 @@ const Transaction = () => {
   };
 
   // Transform transactions data for table
-  const processTransactionsData = useCallback((apiData) => {
-    if (apiData?.transactions && Array.isArray(apiData.transactions)) {
-      const formattedTransactions = apiData.transactions.map((tx, index) => ({
+  // Transform transactions data for table
+const processTransactionsData = useCallback((apiData) => {
+  if (apiData?.transactions && Array.isArray(apiData.transactions)) {
+    const formattedTransactions = apiData.transactions.map((tx, index) => {
+      // Determine from/to based on type
+      const isToken = tx.type === "token";
+      const tokenTransfer = isToken && tx.tokenTransfers && tx.tokenTransfers[0];
+
+      const displayFrom = isToken && tokenTransfer ? tokenTransfer.from : tx.from;
+      const displayTo = isToken && tokenTransfer ? tokenTransfer.to : (tx.to || "Contract Creation");
+
+      return {
         id: tx.hash || `tx-${index + 1}`,
         hash: tx.hash,
-        from: tx.from || "Unknown",
-        to: tx.to || "—",
+        from: displayFrom || "Unknown",
+        to: displayTo || "—",
         value: parseFloat(tx.value || 0),
         gasUsed: tx.gasUsed || "0",
         gasFee: parseFloat(tx.gasFee || 0),
@@ -114,18 +130,19 @@ const Transaction = () => {
         fullData: tx,
         valueFormatted: `${parseFloat(tx.value || 0).toFixed(6)} CBM`,
         gasFeeFormatted: `${parseFloat(tx.gasFee || 0).toFixed(8)} CBM`,
-      }));
+      };
+    });
 
-      setTransactions(formattedTransactions);
-      setStats(apiData.stats);
-      console.log("Processed", formattedTransactions.length, "transactions");
-    } else {
-      console.warn("No valid transactions data");
-      setTransactions([]);
-      setStats({});
-    }
-    setLoading(false);
-  }, []);
+    setTransactions(formattedTransactions);
+    setStats(apiData.stats);
+    console.log("Processed", formattedTransactions.length, "transactions");
+  } else {
+    console.warn("No valid transactions data");
+    setTransactions([]);
+    setStats({});
+  }
+  setLoading(false);
+}, []);
 
   // Load data effect
   useEffect(() => {
@@ -180,7 +197,7 @@ const Transaction = () => {
               navigate(`/search?query=${encodeURIComponent(rowData.hash)}`);
             }}
           >
-            {rowData.hash.slice(0, 10)}...
+            {truncate(rowData.hash)}
           </span>
         </div>
       ),
@@ -198,7 +215,7 @@ const Transaction = () => {
             navigate(`/search?query=${encodeURIComponent(rowData.from)}`);
           }}
         >
-          {rowData.from.slice(0, 8)}...
+          {truncate(rowData.from)}
         </span>
       ),
     },
@@ -215,7 +232,7 @@ const Transaction = () => {
             navigate(`/search?query=${encodeURIComponent(rowData.to)}`);
           }}
         >
-          {rowData.to === "Contract Creation" ? "Contract Creation" : rowData.to.slice(0, 8) + "..."}
+          {rowData.to === "Contract Creation" ? "Contract Creation" : truncate(rowData.to)}
         </span>
       ),
     },

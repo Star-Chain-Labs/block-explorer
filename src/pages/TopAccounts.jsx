@@ -12,6 +12,12 @@ const TopAccounts = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
+  // Truncate helper
+  const truncate = (text, start = 10, end = 10) => {
+    if (!text || typeof text !== "string") return "N/A";
+    return `${text.slice(0, start)}......${text.slice(-end)}`;
+  };
+
   // 🧮 Card stats
   const [statsData, setStatsData] = useState([
     { title: "Total Holders", value: "Loading..." },
@@ -21,7 +27,7 @@ const TopAccounts = () => {
 
   // 🧾 Table columns
   const tableColumns = [
-    { field: "address", header: "Address", minWidth: "250px" },
+    { field: "address", header: "Address", body: (rowData) => truncate(rowData.address), minWidth: "250px" },
     { field: "balance", header: "Balance (CBM)", minWidth: "250px" },
     { field: "percentage", header: "Percentage", minWidth: "150px" },
   ];

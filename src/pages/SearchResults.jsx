@@ -262,29 +262,212 @@ const SearchResults = memo(() => {
     );
   }
 
-  // Error State
-  if (error) {
+
+  // === नया कोड: हर केस में टेबल दिखाओ, सब 0 ===
+  if (!result || error || !result.data || result.data.length === 0) {
+    const isAddr = isAddress(query);
+    const isTx = isTransactionHash(query);
+    const isBlk = isBlockNumber(query);
+
+    // 1. Address (चाहे valid हो या invalid)
+    if (isAddr || (!isTx && !isBlk)) {
+      return (
+        <div className="min-h-screen bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+            <div className="flex items-center gap-4 mb-6">
+              <button
+                onClick={goBack}
+                className="flex items-center gap-2 text-blue-600 hover:text-blue-800 p-2 rounded-lg hover:bg-blue-50"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                Back
+              </button>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">Address Details</h2>
+
+              {/* Address & Balance */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="text-sm font-medium text-gray-500 mb-2">Address</div>
+                  <div className="flex items-center gap-2">
+                    <code className="font-mono text-blue-600 text-sm break-all">{query}</code>
+                    <button onClick={() => copyToClipboard(query)} className="p-1 hover:bg-gray-200 rounded">
+                      {copied === query ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+                <div className="bg-green-50 p-4 rounded-lg">
+                  <div className="text-sm font-medium text-gray-500 mb-2">Balance</div>
+                  <div className="text-2xl font-bold text-green-600">0.000000 CBM</div>
+                </div>
+              </div>
+
+              {/* Tabs */}
+              <div className="border-b border-gray-200 mb-6">
+                <nav className="-mb-px flex space-x-8">
+                  {["transactions", "tokenTransfers", "tokenHoldings"].map((tab) => (
+                    <button
+                      key={tab}
+                      className={`${activeTab === tab
+                          ? "border-blue-500 text-blue-600"
+                          : "border-transparent text-gray-500 hover:text-gray-700"
+                        } whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm capitalize`}
+                      onClick={() => setActiveTab(tab)}
+                    >
+                      {tab === "transactions" && "Transactions (0)"}
+                      {tab === "tokenTransfers" && "Token Transfers (0)"}
+                      {tab === "tokenHoldings" && "Token Holdings (0)"}
+                    </button>
+                  ))}
+                </nav>
+              </div>
+
+              {/* Table - All 0 */}
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    {activeTab === "transactions" && (
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Txn Hash</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">From</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">To</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Value</th>
+                      </tr>
+                    )}
+                    {activeTab === "tokenTransfers" && (
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Txn Hash</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Token</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Value</th>
+                      </tr>
+                    )}
+                    {activeTab === "tokenHoldings" && (
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Token</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Balance</th>
+                      </tr>
+                    )}
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    <tr>
+                      <td
+                        colSpan={activeTab === "transactions" ? 4 : activeTab === "tokenTransfers" ? 3 : 2}
+                        className="px-6 py-12 text-center text-gray-500 text-sm"
+                      >
+                        No data available. All values are 0.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // 2. Transaction Hash
+    if (isTx) {
+      return (
+        <div className="min-h-screen bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+            <button onClick={goBack} className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-6">
+              <ArrowLeft className="w-5 h-5" /> Back
+            </button>
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-2xl font-bold mb-6">Transaction Details</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-gray-50 p-4 rounded-lg col-span-3">
+                  <div className="text-sm font-medium text-gray-500 mb-2">Transaction Hash</div>
+                  <code className="font-mono text-blue-600 text-sm break-all">{query}</code>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="text-sm font-medium text-gray-500 mb-2">Value</div>
+                  <div className="text-xl font-bold text-green-600">0.000000 CBM</div>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="text-sm font-medium text-gray-500 mb-2">Gas Used</div>
+                  <div className="font-mono">0</div>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="text-sm font-medium text-gray-500 mb-2">Gas Price</div>
+                  <div className="font-mono">0 Gwei</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // 3. Block Number
+    if (isBlk) {
+      return (
+        <div className="min-h-screen bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+            <button onClick={goBack} className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-6">
+              <ArrowLeft className="w-5 h-5" /> Back
+            </button>
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-xl font-bold mb-4">Block #{query} Transactions (0)</h2>
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Txn Hash</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">From</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">To</th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td colSpan="4" className="px-6 py-12 text-center text-gray-500">
+                      No transactions found. All values are 0.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // 4. Default: Invalid भी हो तो Address जैसा ट्रीट करो
     return (
-      <div className="min-h-screen bg-gray-50 py-12 sm:py-20 px-4">
-        <div className="max-w-4xl mx-auto">
-          <button
-            onClick={goBack}
-            className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-4"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="text-sm sm:text-base">Back to Home</span>
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+          <button onClick={goBack} className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-6">
+            <ArrowLeft className="w-5 h-5" /> Back
           </button>
-          <div className="bg-white rounded-lg shadow-md p-6 sm:p-8 text-center">
-            <div className="text-red-600 text-base sm:text-lg font-semibold mb-2 break-words">
-              {error}
-            </div>
-            <div className="text-sm text-gray-500 mb-4">
-              Tips: Check address format (0x...), transaction hash (64 chars),
-              or block number
-            </div>
-            <div className="text-xs text-gray-400 break-all">
-              Searched for:{" "}
-              <code className="bg-gray-100 px-2 py-1 rounded">{query}</code>
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">Search Results</h2>
+            <div className="text-sm text-gray-600 mb-4">Query: <code className="bg-gray-100 px-2 py-1 rounded">{query}</code></div>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Field</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="px-6 py-4 text-sm text-gray-700">Status</td>
+                    <td className="px-6 py-4 text-sm text-gray-500">No data found</td>
+                  </tr>
+                  <tr>
+                    <td className="px-6 py-4 text-sm text-gray-700">Balance</td>
+                    <td className="px-6 py-4 text-sm font-bold text-green-600">0.000000 CBM</td>
+                  </tr>
+                  <tr>
+                    <td className="px-6 py-4 text-sm text-gray-700">Transactions</td>
+                    <td className="px-6 py-4 text-sm text-gray-500">0</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -292,32 +475,6 @@ const SearchResults = memo(() => {
     );
   }
 
-  if (!result || !result.data || result.data.length === 0) {
-    return (
-      <div className="min-h-screen w-full bg-gray-50 py-12 sm:py-20 px-4">
-        <div className="max-w-4xl mx-auto">
-          <button
-            onClick={goBack}
-            className="flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-4"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="text-sm sm:text-base">Back to Home</span>
-          </button>
-          <div className="bg-white rounded-lg shadow-md p-6 sm:p-8 text-center">
-            <div className="text-gray-600 text-base sm:text-lg font-semibold mb-2 break-words">
-              No results found for "{query}"
-            </div>
-            <div className="text-sm text-gray-500">
-              {isAddress(query) &&
-                "This address may not have any transactions yet."}
-              {isTransactionHash(query) && "Transaction hash not found."}
-              {isBlockNumber(query) && "Block number not found."}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   // Transaction Details
   const renderTransactionDetails = () => {
@@ -512,31 +669,28 @@ const SearchResults = memo(() => {
         <div className="border-b border-gray-200 mb-6 overflow-x-auto">
           <nav className="-mb-px flex space-x-4 sm:space-x-8 min-w-max px-1">
             <button
-              className={`${
-                activeTab === "transactions"
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-xs sm:text-sm`}
+              className={`${activeTab === "transactions"
+                ? "border-blue-500 text-blue-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-xs sm:text-sm`}
               onClick={() => setActiveTab("transactions")}
             >
               Transactions ({nativeTxs.length})
             </button>
             <button
-              className={`${
-                activeTab === "tokenTransfers"
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-xs sm:text-sm`}
+              className={`${activeTab === "tokenTransfers"
+                ? "border-blue-500 text-blue-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-xs sm:text-sm`}
               onClick={() => setActiveTab("tokenTransfers")}
             >
               Token Transfers ({tokenTxs.length})
             </button>
             <button
-              className={`${
-                activeTab === "tokenHoldings"
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-xs sm:text-sm`}
+              className={`${activeTab === "tokenHoldings"
+                ? "border-blue-500 text-blue-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-xs sm:text-sm`}
               onClick={() => setActiveTab("tokenHoldings")}
             >
               Token Holdings ({tokenHoldings.length})
@@ -581,8 +735,8 @@ const SearchResults = memo(() => {
                         tx.from?.toLowerCase() === query.toLowerCase()
                           ? "OUT"
                           : tx.to?.toLowerCase() === query.toLowerCase()
-                          ? "IN"
-                          : "-";
+                            ? "IN"
+                            : "-";
 
                       return (
                         <tr
@@ -763,8 +917,8 @@ const SearchResults = memo(() => {
                             ? "OUT"
                             : transfer.to?.toLowerCase() ===
                               query?.toLowerCase()
-                            ? "IN"
-                            : "-";
+                              ? "IN"
+                              : "-";
 
                         return (
                           <tr
