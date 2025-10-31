@@ -3,8 +3,8 @@ import Table from "../components/Table";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ethers } from "ethers";
 
-const API_URL = "https://api.cbmscan.com/api/transactions/data";
 // const API_URL = "http://192.168.1.3:8080/api/transactions/data";
+const API_URL = "https://api.cbmscan.com/api/transactions/data";
 
 const Transaction = () => {
   const location = useLocation();
@@ -47,21 +47,21 @@ const Transaction = () => {
 
       // Transform API data to match expected format
       const transactionsData = apiResponse.data.map((tx) => ({
-  hash: tx.hash,
-  from: tx.from,
-  to: tx.to || "Contract Creation",
-  value: ethers.formatEther(tx.value || "0x0"),
-  gasUsed: tx.gasUsed,
-  gasPrice: tx.gasPrice,
-  blockNumber: tx.blockNumber,
-  timeStamp: tx.timeStamp,
-  gasFee: ethers.formatEther(
-    (BigInt(tx.gasUsed || "0x0") * BigInt(tx.gasPrice || "0x0")).toString()
-  ),
-  timeAgo: calculateTimeAgo(tx.timeStamp),
-  type: tx.type,                    // Add this
-  tokenTransfers: tx.tokenTransfers // Add this
-}));
+        hash: tx.hash,
+        from: tx.from,
+        to: tx.to || "Contract Creation",
+        value: ethers.formatEther(tx.value || "0x0"),
+        gasUsed: tx.gasUsed,
+        gasPrice: tx.gasPrice,
+        blockNumber: tx.blockNumber,
+        timeStamp: tx.timeStamp,
+        gasFee: ethers.formatEther(
+          (BigInt(tx.gasUsed || "0x0") * BigInt(tx.gasPrice || "0x0")).toString()
+        ),
+        timeAgo: calculateTimeAgo(tx.timeStamp),
+        type: tx.type,                    // Add this
+        tokenTransfers: tx.tokenTransfers // Add this
+      }));
 
       // Compute stats (since API doesn't provide them)
       const totalTransactions = apiResponse.totalRecords;
@@ -107,42 +107,42 @@ const Transaction = () => {
 
   // Transform transactions data for table
   // Transform transactions data for table
-const processTransactionsData = useCallback((apiData) => {
-  if (apiData?.transactions && Array.isArray(apiData.transactions)) {
-    const formattedTransactions = apiData.transactions.map((tx, index) => {
-      // Determine from/to based on type
-      const isToken = tx.type === "token";
-      const tokenTransfer = isToken && tx.tokenTransfers && tx.tokenTransfers[0];
+  const processTransactionsData = useCallback((apiData) => {
+    if (apiData?.transactions && Array.isArray(apiData.transactions)) {
+      const formattedTransactions = apiData.transactions.map((tx, index) => {
+        // Determine from/to based on type
+        const isToken = tx.type === "token";
+        const tokenTransfer = isToken && tx.tokenTransfers && tx.tokenTransfers[0];
 
-      const displayFrom = isToken && tokenTransfer ? tokenTransfer.from : tx.from;
-      const displayTo = isToken && tokenTransfer ? tokenTransfer.to : (tx.to || "Contract Creation");
+        const displayFrom = isToken && tokenTransfer ? tokenTransfer.from : tx.from;
+        const displayTo = isToken && tokenTransfer ? tokenTransfer.to : (tx.to || "Contract Creation");
 
-      return {
-        id: tx.hash || `tx-${index + 1}`,
-        hash: tx.hash,
-        from: displayFrom || "Unknown",
-        to: displayTo || "—",
-        value: parseFloat(tx.value || 0),
-        gasUsed: tx.gasUsed || "0",
-        gasFee: parseFloat(tx.gasFee || 0),
-        timeAgo: tx.timeAgo || "—",
-        blockNumber: tx.blockNumber,
-        fullData: tx,
-        valueFormatted: `${parseFloat(tx.value || 0).toFixed(6)} CBM`,
-        gasFeeFormatted: `${parseFloat(tx.gasFee || 0).toFixed(8)} CBM`,
-      };
-    });
+        return {
+          id: tx.hash || `tx-${index + 1}`,
+          hash: tx.hash,
+          from: displayFrom || "Unknown",
+          to: displayTo || "—",
+          value: parseFloat(tx.value || 0),
+          gasUsed: tx.gasUsed || "0",
+          gasFee: parseFloat(tx.gasFee || 0),
+          timeAgo: tx.timeAgo || "—",
+          blockNumber: tx.blockNumber,
+          fullData: tx,
+          valueFormatted: `${parseFloat(tx.value || 0).toFixed(6)} CBM`,
+          gasFeeFormatted: `${parseFloat(tx.gasFee || 0).toFixed(8)} CBM`,
+        };
+      });
 
-    setTransactions(formattedTransactions);
-    setStats(apiData.stats);
-    console.log("Processed", formattedTransactions.length, "transactions");
-  } else {
-    console.warn("No valid transactions data");
-    setTransactions([]);
-    setStats({});
-  }
-  setLoading(false);
-}, []);
+      setTransactions(formattedTransactions);
+      setStats(apiData.stats);
+      console.log("Processed", formattedTransactions.length, "transactions");
+    } else {
+      console.warn("No valid transactions data");
+      setTransactions([]);
+      setStats({});
+    }
+    setLoading(false);
+  }, []);
 
   // Load data effect
   useEffect(() => {

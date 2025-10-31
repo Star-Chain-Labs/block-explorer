@@ -20,6 +20,8 @@ const SearchResults = memo(() => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const query = searchParams.get("query")?.trim();
+  const [showAllTransfers, setShowAllTransfers] = useState(false);
+  const [showAllTransactions, setShowAllTransactions] = useState(false);
 
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -102,8 +104,12 @@ const SearchResults = memo(() => {
 
       // Method 1: Try API for token list
       try {
+        // const tokenListResponse = await axios.get(
+        //   `http://192.168.1.3:8080/api/transactions/holdings/${address}`,
+        //   { timeout: 10000 }
+        // );
         const tokenListResponse = await axios.get(
-          `https://api.cbmscan.com/api/tokens/holdings/${address}`,
+          `https://api.cbmscan.com/api/transactions/holdings/${address}`,
           { timeout: 10000 }
         );
 
@@ -185,6 +191,9 @@ const SearchResults = memo(() => {
         setResult(null);
         setBalance(null);
 
+        // const apiUrl = `http://192.168.1.3:8080/api/transactions/search/${encodeURIComponent(
+        //   query
+        // )}`;
         const apiUrl = `https://api.cbmscan.com/api/transactions/search/${encodeURIComponent(
           query
         )}`;
@@ -311,8 +320,8 @@ const SearchResults = memo(() => {
                     <button
                       key={tab}
                       className={`${activeTab === tab
-                          ? "border-blue-500 text-blue-600"
-                          : "border-transparent text-gray-500 hover:text-gray-700"
+                        ? "border-blue-500 text-blue-600"
+                        : "border-transparent text-gray-500 hover:text-gray-700"
                         } whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm capitalize`}
                       onClick={() => setActiveTab(tab)}
                     >
@@ -698,6 +707,7 @@ const SearchResults = memo(() => {
           </nav>
         </div>
         {/* Transactions Tab */}
+        {/* Transactions Tab */}
         {activeTab === "transactions" && (
           <div className="overflow-x-auto -mx-4 sm:mx-0">
             <div className="inline-block min-w-full align-middle">
@@ -719,7 +729,6 @@ const SearchResults = memo(() => {
                     <th className="px-3 sm:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Direction
                     </th>
-
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       To
                     </th>
@@ -729,134 +738,159 @@ const SearchResults = memo(() => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {nativeTxs.length > 0 ? (
-                    nativeTxs.map((tx, idx) => {
-                      const direction =
-                        tx.from?.toLowerCase() === query.toLowerCase()
-                          ? "OUT"
-                          : tx.to?.toLowerCase() === query.toLowerCase()
-                            ? "IN"
-                            : "-";
+                  {(() => {
+                    const nativeTxs = result.data.filter((tx) => tx.type === "native");
 
-                      return (
-                        <tr
-                          key={tx._id || idx}
-                          className="hover:bg-gray-50 transition-colors"
-                        >
-                          {/* Transaction Hash */}
-                          <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
-                            <div className="text-xs sm:text-sm font-mono text-blue-600 flex items-center gap-1 sm:gap-2">
-                              <span className="hidden sm:inline">
-                                {tx.hash.slice(0, 12)}...{tx.hash.slice(-8)}
-                              </span>
-                              <span className="sm:hidden">
-                                {tx.hash.slice(0, 6)}...{tx.hash.slice(-4)}
-                              </span>
-                              <button
-                                onClick={() => copyToClipboard(tx.hash)}
-                                className="p-1 hover:bg-gray-200 rounded flex-shrink-0"
-                                title="Copy transaction hash"
-                              >
-                                {copied === tx.hash ? (
-                                  <Check className="w-3 h-3 sm:w-4 sm:h-4" />
+                    const displayedTxs = showAllTransactions
+                      ? nativeTxs
+                      : nativeTxs.slice(0, 10);
+
+                    return displayedTxs.length > 0 ? (
+                      <>
+                        {displayedTxs.map((tx, idx) => {
+                          const direction =
+                            tx.from?.toLowerCase() === query.toLowerCase()
+                              ? "OUT"
+                              : tx.to?.toLowerCase() === query.toLowerCase()
+                                ? "IN"
+                                : "-";
+
+                          return (
+                            <tr
+                              key={tx._id || idx}
+                              className="hover:bg-gray-50 transition-colors"
+                            >
+                              {/* Transaction Hash */}
+                              <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                                <div className="text-xs sm:text-sm font-mono text-blue-600 flex items-center gap-1 sm:gap-2">
+                                  <span className="hidden sm:sm:inline">
+                                    {tx.hash.slice(0, 12)}...{tx.hash.slice(-8)}
+                                  </span>
+                                  <span className="sm:hidden">
+                                    {tx.hash.slice(0, 6)}...{tx.hash.slice(-4)}
+                                  </span>
+                                  <button
+                                    onClick={() => copyToClipboard(tx.hash)}
+                                    className="p-1 hover:bg-gray-200 rounded flex-shrink-0"
+                                    title="Copy transaction hash"
+                                  >
+                                    {copied === tx.hash ? (
+                                      <Check className="w-3 h-3 sm:w-4 sm:h-4" />
+                                    ) : (
+                                      <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+                                    )}
+                                  </button>
+                                </div>
+                              </td>
+
+                              {/* Block Number */}
+                              <td className="px-3 sm:px-6 py-4 whitespace-nowrap hidden lg:table-cell">
+                                <div className="text-xs sm:text-sm font-semibold text-gray-700">
+                                  #{tx.blockNumber}
+                                </div>
+                              </td>
+
+                              {/* Age */}
+                              <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 hidden md:table-cell">
+                                {formatTimestamp(tx.timeStamp)}
+                              </td>
+
+                              {/* From */}
+                              <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                                <div className="text-xs sm:text-sm font-mono flex items-center gap-1 sm:gap-2">
+                                  {shortenAddress(tx.from)}
+                                  <button
+                                    onClick={() => copyToClipboard(tx.from)}
+                                    className="p-1 hover:bg-gray-200 rounded flex-shrink-0"
+                                    title="Copy from address"
+                                  >
+                                    {copied === tx.from ? (
+                                      <Check className="w-3 h-3 sm:w-4 sm:h-4" />
+                                    ) : (
+                                      <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+                                    )}
+                                  </button>
+                                </div>
+                              </td>
+
+                              {/* Direction */}
+                              <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-center">
+                                {direction === "IN" ? (
+                                  <span className="bg-green-100 text-green-700 font-semibold text-xs px-3 py-1 rounded-full">
+                                    IN
+                                  </span>
+                                ) : direction === "OUT" ? (
+                                  <span className="bg-red-100 text-red-700 font-semibold text-xs px-3 py-1 rounded-full">
+                                    OUT
+                                  </span>
                                 ) : (
-                                  <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+                                  <span className="bg-gray-100 text-gray-600 text-xs px-3 py-1 rounded-full">
+                                    -
+                                  </span>
                                 )}
-                              </button>
-                            </div>
-                          </td>
+                              </td>
 
-                          {/* Block Number */}
-                          <td className="px-3 sm:px-6 py-4 whitespace-nowrap hidden lg:table-cell">
-                            <div className="text-xs sm:text-sm font-semibold text-gray-700">
-                              #{tx.blockNumber}
-                            </div>
-                          </td>
-
-                          {/* Age */}
-                          <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 hidden md:table-cell">
-                            {formatTimestamp(tx.timeStamp)}
-                          </td>
-
-                          {/* From */}
-                          <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
-                            <div className="text-xs sm:text-sm font-mono flex items-center gap-1 sm:gap-2">
-                              {shortenAddress(tx.from)}
-                              <button
-                                onClick={() => copyToClipboard(tx.from)}
-                                className="p-1 hover:bg-gray-200 rounded flex-shrink-0"
-                                title="Copy from address"
-                              >
-                                {copied === tx.from ? (
-                                  <Check className="w-3 h-3 sm:w-4 sm:h-4" />
-                                ) : (
-                                  <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
-                                )}
-                              </button>
-                            </div>
-                          </td>
-
-                          {/* Direction Column (BscScan Style) */}
-                          <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-center">
-                            {direction === "IN" ? (
-                              <span className="bg-green-100 text-green-700 font-semibold text-xs px-3 py-1 rounded-full">
-                                IN
-                              </span>
-                            ) : direction === "OUT" ? (
-                              <span className="bg-red-100 text-red-700 font-semibold text-xs px-3 py-1 rounded-full">
-                                OUT
-                              </span>
-                            ) : (
-                              <span className="bg-gray-100 text-gray-600 text-xs px-3 py-1 rounded-full">
-                                -
-                              </span>
-                            )}
-                          </td>
-
-                          {/* To */}
-                          <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
-                            <div className="text-xs sm:text-sm font-mono flex items-center gap-1 sm:gap-2">
-                              {shortenAddress(tx.to)}
-                              {tx.to && (
-                                <button
-                                  onClick={() => copyToClipboard(tx.to)}
-                                  className="p-1 hover:bg-gray-200 rounded flex-shrink-0"
-                                  title="Copy to address"
-                                >
-                                  {copied === tx.to ? (
-                                    <Check className="w-3 h-3 sm:w-4 sm:h-4" />
-                                  ) : (
-                                    <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+                              {/* To */}
+                              <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                                <div className="text-xs sm:text-sm font-mono flex items-center gap-1 sm:gap-2">
+                                  {shortenAddress(tx.to)}
+                                  {tx.to && (
+                                    <button
+                                      onClick={() => copyToClipboard(tx.to)}
+                                      className="p-1 hover:bg-gray-200 rounded flex-shrink-0"
+                                      title="Copy to address"
+                                    >
+                                      {copied === tx.to ? (
+                                        <Check className="w-3 h-3 sm:w-4 sm:h-4" />
+                                      ) : (
+                                        <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+                                      )}
+                                    </button>
                                   )}
-                                </button>
-                              )}
-                            </div>
-                          </td>
+                                </div>
+                              </td>
 
-                          {/* Value */}
-                          <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-right">
-                            <div className="text-xs sm:text-sm font-semibold text-green-600">
-                              {formatValue(tx.value)} CBM
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  ) : (
-                    <tr>
-                      <td
-                        colSpan="8"
-                        className="px-3 sm:px-6 py-8 text-center text-xs sm:text-sm text-gray-500"
-                      >
-                        No native transactions found for this address.
-                      </td>
-                    </tr>
-                  )}
+                              {/* Value */}
+                              <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-right">
+                                <div className="text-xs sm:text-sm font-semibold text-green-600">
+                                  {formatValue(tx.value)} CBM
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+
+                        {/* View All Button */}
+                        {nativeTxs.length > 10 && !showAllTransactions && (
+                          <tr>
+                            <td colSpan="8" className="px-3 sm:px-6 py-4 text-center">
+                              <button
+                                onClick={() => setShowAllTransactions(true)}
+                                className="px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition"
+                              >
+                                View All ({nativeTxs.length})
+                              </button>
+                            </td>
+                          </tr>
+                        )}
+                      </>
+                    ) : (
+                      <tr>
+                        <td
+                          colSpan="8"
+                          className="px-3 sm:px-6 py-8 text-center text-xs sm:text-sm text-gray-500"
+                        >
+                          No native transactions found for this address.
+                        </td>
+                      </tr>
+                    );
+                  })()}
                 </tbody>
               </table>
             </div>
           </div>
         )}
+
         {/* Token Transfers Tab */}
         {activeTab === "tokenTransfers" && (
           <div className="overflow-x-auto -mx-4 sm:mx-0">
@@ -890,10 +924,7 @@ const SearchResults = memo(() => {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {(() => {
                     const transfersWithTimestamp = result.data
-                      .filter(
-                        (tx) =>
-                          tx.tokenTransfers && tx.tokenTransfers.length > 0
-                      )
+                      .filter((tx) => tx.tokenTransfers && tx.tokenTransfers.length > 0)
                       .flatMap((tx) =>
                         tx.tokenTransfers.map((t) => ({
                           ...t,
@@ -909,141 +940,150 @@ const SearchResults = memo(() => {
                         }))
                       );
 
-                    return transfersWithTimestamp.length > 0 ? (
-                      transfersWithTimestamp.map((transfer, idx) => {
-                        // ✅ Determine IN / OUT direction
-                        const direction =
-                          transfer.from?.toLowerCase() === query?.toLowerCase()
-                            ? "OUT"
-                            : transfer.to?.toLowerCase() ===
-                              query?.toLowerCase()
-                              ? "IN"
-                              : "-";
+                    const displayedTransfers = showAllTransfers
+                      ? transfersWithTimestamp
+                      : transfersWithTimestamp.slice(0, 10);
 
-                        return (
-                          <tr
-                            key={`${transfer.tokenAddress}-${idx}`}
-                            className="hover:bg-gray-50"
-                          >
-                            {/* Txn Hash */}
-                            <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
-                              <div className="text-xs sm:text-sm font-mono text-blue-600 flex items-center gap-1 sm:gap-2">
-                                <span className="hidden sm:inline">
-                                  {transfer.parentHash.slice(0, 12)}...
-                                  {transfer.parentHash.slice(-8)}
-                                </span>
-                                <span className="sm:hidden">
-                                  {transfer.parentHash.slice(0, 6)}...
-                                  {transfer.parentHash.slice(-4)}
-                                </span>
-                                <button
-                                  onClick={() =>
-                                    copyToClipboard(transfer.parentHash)
-                                  }
-                                  className="p-1 hover:bg-gray-200 rounded flex-shrink-0"
-                                  title="Copy transaction hash"
-                                >
-                                  {copied === transfer.parentHash ? (
-                                    <Check className="w-3 h-3 sm:w-4 sm:h-4" />
-                                  ) : (
-                                    <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
-                                  )}
-                                </button>
-                              </div>
-                            </td>
+                    return displayedTransfers.length > 0 ? (
+                      <>
+                        {displayedTransfers.map((transfer, idx) => {
+                          const direction =
+                            transfer.from?.toLowerCase() === query?.toLowerCase()
+                              ? "OUT"
+                              : transfer.to?.toLowerCase() === query?.toLowerCase()
+                                ? "IN"
+                                : "-";
 
-                            {/* Age */}
-                            <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 hidden md:table-cell">
-                              {formatTimestamp(transfer.timeStamp)}
-                            </td>
+                          return (
+                            <tr key={`${transfer.tokenAddress}-${idx}`} className="hover:bg-gray-50">
+                              {/* Txn Hash */}
+                              <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                                <div className="text-xs sm:text-sm font-mono text-blue-600 flex items-center gap-1 sm:gap-2">
+                                  <span className="hidden sm:inline">
+                                    {transfer.parentHash.slice(0, 12)}...{transfer.parentHash.slice(-8)}
+                                  </span>
+                                  <span className="sm:hidden">
+                                    {transfer.parentHash.slice(0, 6)}...{transfer.parentHash.slice(-4)}
+                                  </span>
+                                  <button
+                                    onClick={() => copyToClipboard(transfer.parentHash)}
+                                    className="p-1 hover:bg-gray-200 rounded flex-shrink-0"
+                                    title="Copy transaction hash"
+                                  >
+                                    {copied === transfer.parentHash ? (
+                                      <Check className="w-3 h-3 sm:w-4 sm:h-4" />
+                                    ) : (
+                                      <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+                                    )}
+                                  </button>
+                                </div>
+                              </td>
 
-                            {/* From */}
-                            <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
-                              <div className="text-xs sm:text-sm font-mono flex items-center gap-1 sm:gap-2">
-                                {shortenAddress(transfer.from)}
-                                <button
-                                  onClick={() => copyToClipboard(transfer.from)}
-                                  className="p-1 hover:bg-gray-200 rounded flex-shrink-0"
-                                  title="Copy from address"
-                                >
-                                  {copied === transfer.from ? (
-                                    <Check className="w-3 h-3 sm:w-4 sm:h-4" />
-                                  ) : (
-                                    <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
-                                  )}
-                                </button>
-                              </div>
-                            </td>
+                              {/* Age */}
+                              <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 hidden md:table-cell">
+                                {formatTimestamp(transfer.timeStamp)}
+                              </td>
 
-                            {/* ✅ Direction Column */}
-                            <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-center">
-                              {direction === "IN" ? (
-                                <span className="bg-green-100 text-green-700 font-semibold text-xs px-3 py-1 rounded-full">
-                                  IN
-                                </span>
-                              ) : direction === "OUT" ? (
-                                <span className="bg-red-100 text-red-700 font-semibold text-xs px-3 py-1 rounded-full">
-                                  OUT
-                                </span>
-                              ) : (
-                                <span className="bg-gray-100 text-gray-600 text-xs px-3 py-1 rounded-full">
-                                  -
-                                </span>
-                              )}
-                            </td>
+                              {/* From */}
+                              <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                                <div className="text-xs sm:text-sm font-mono flex items-center gap-1 sm:gap-2">
+                                  {shortenAddress(transfer.from)}
+                                  <button
+                                    onClick={() => copyToClipboard(transfer.from)}
+                                    className="p-1 hover:bg-gray-200 rounded flex-shrink-0"
+                                    title="Copy from address"
+                                  >
+                                    {copied === transfer.from ? (
+                                      <Check className="w-3 h-3 sm:w-4 sm:h-4" />
+                                    ) : (
+                                      <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+                                    )}
+                                  </button>
+                                </div>
+                              </td>
 
-                            {/* To */}
-                            <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
-                              <div className="text-xs sm:text-sm font-mono flex items-center gap-1 sm:gap-2">
-                                {shortenAddress(transfer.to)}
-                                <button
-                                  onClick={() => copyToClipboard(transfer.to)}
-                                  className="p-1 hover:bg-gray-200 rounded flex-shrink-0"
-                                  title="Copy to address"
-                                >
-                                  {copied === transfer.to ? (
-                                    <Check className="w-3 h-3 sm:w-4 sm:h-4" />
-                                  ) : (
-                                    <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
-                                  )}
-                                </button>
-                              </div>
-                            </td>
+                              {/* Direction */}
+                              <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-center">
+                                {direction === "IN" ? (
+                                  <span className="bg-green-100 text-green-700 font-semibold text-xs px-3 py-1 rounded-full">
+                                    IN
+                                  </span>
+                                ) : direction === "OUT" ? (
+                                  <span className="bg-red-100 text-red-700 font-semibold text-xs px-3 py-1 rounded-full">
+                                    OUT
+                                  </span>
+                                ) : (
+                                  <span className="bg-gray-100 text-gray-600 text-xs px-3 py-1 rounded-full">
+                                    -
+                                  </span>
+                                )}
+                              </td>
 
-                            {/* Token */}
-                            <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
-                              <div className="text-xs sm:text-sm flex items-center gap-1 sm:gap-2">
-                                <span className="font-mono text-blue-600">
-                                  {shortenAddress(transfer.tokenAddress)}
-                                </span>
-                                <button
-                                  onClick={() =>
-                                    copyToClipboard(transfer.tokenAddress)
-                                  }
-                                  className="p-1 hover:bg-gray-200 rounded flex-shrink-0"
-                                  title="Copy token address"
-                                >
-                                  {copied === transfer.tokenAddress ? (
-                                    <Check className="w-3 h-3 sm:w-4 sm:h-4" />
-                                  ) : (
-                                    <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
-                                  )}
-                                </button>
-                              </div>
-                              <div className="text-xs text-gray-500 mt-1">
-                                {transfer.name || transfer.symbol || "Unknown"}
-                              </div>
-                            </td>
+                              {/* To */}
+                              <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                                <div className="text-xs sm:text-sm font-mono flex items-center gap-1 sm:gap-2">
+                                  {shortenAddress(transfer.to)}
+                                  <button
+                                    onClick={() => copyToClipboard(transfer.to)}
+                                    className="p-1 hover:bg-gray-200 rounded flex-shrink-0"
+                                    title="Copy to address"
+                                  >
+                                    {copied === transfer.to ? (
+                                      <Check className="w-3 h-3 sm:w-4 sm:h-4" />
+                                    ) : (
+                                      <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+                                    )}
+                                  </button>
+                                </div>
+                              </td>
 
-                            {/* Value */}
-                            <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-right">
-                              <div className="text-xs sm:text-sm font-semibold text-green-600">
-                                {transfer.value} {transfer.symbol || ""}
-                              </div>
+                              {/* Token */}
+                              <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                                <div className="text-xs sm:text-sm flex items-center gap-1 sm:gap-2">
+                                  <span className="font-mono text-blue-600">
+                                    {shortenAddress(transfer.tokenAddress)}
+                                  </span>
+                                  <button
+                                    onClick={() => copyToClipboard(transfer.tokenAddress)}
+                                    className="p-1 hover:bg-gray-200 rounded flex-shrink-0"
+                                    title="Copy token address"
+                                  >
+                                    {copied === transfer.tokenAddress ? (
+                                      <Check className="w-3 h-3 sm:w-4 sm:h-4" />
+                                    ) : (
+                                      <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+                                    )}
+                                  </button>
+                                </div>
+                                <div className="text-xs text-gray-500 mt-1">
+                                  {transfer.name || transfer.symbol || "Unknown"}
+                                </div>
+                              </td>
+
+                              {/* Value */}
+                              <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-right">
+                                <div className="text-xs sm:text-sm font-semibold text-green-600">
+                                  {transfer.value} {transfer.symbol || ""}
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+
+                        {/* View All Button */}
+                        {transfersWithTimestamp.length > 10 && !showAllTransfers && (
+                          <tr>
+                            <td colSpan="7" className="px-3 sm:px-6 py-4 text-center">
+                              <button
+                                onClick={() => setShowAllTransfers(true)}
+                                className="px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition"
+                              >
+                                View All ({transfersWithTimestamp.length})
+                              </button>
                             </td>
                           </tr>
-                        );
-                      })
+                        )}
+                      </>
                     ) : (
                       <tr>
                         <td
@@ -1060,6 +1100,7 @@ const SearchResults = memo(() => {
             </div>
           </div>
         )}
+
         {/* Token Holdings Tab */}
         {activeTab === "tokenHoldings" && (
           <div>
