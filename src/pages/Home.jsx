@@ -4,6 +4,7 @@ import { Search, TrendingUp, Activity, Zap, Clock } from "lucide-react";
 import axios from "axios";
 
 import { useNavigate } from "react-router-dom";
+import { getCbmNewPeice } from "../api/userApi";
 
 const RPC_URL = "https://rpc.cbmscan.com/";
 
@@ -133,7 +134,7 @@ const Home = () => {
   const [latestTransactions, setLatestTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-
+const [cbmPrice, setCbmPrice] = useState(null)
   const handleSearch = useCallback(() => {
     if (searchQuery?.trim()) {
       console.log("Searching for:", searchQuery);
@@ -236,6 +237,22 @@ const Home = () => {
   //   }
   // }, []);
 
+
+
+  const getCbmPrice = async () => {
+  try {
+    const res = await getCbmNewPeice();
+    console.log("✅ CBM Price:", res?.cbmPrice?.cbmPrice);
+    setCbmPrice(res?.cbmPrice?.cbmPrice);
+  } catch (err) {
+    console.error("❌ Error fetching CBM price:", err.message || err);
+  }
+};
+
+// ✅ Run once when component mounts
+useEffect(() => {
+  getCbmPrice();
+}, []);
 
   const fetchChainData = useCallback(async () => {
     try {
@@ -442,7 +459,7 @@ const Home = () => {
               <StatsCard
                 icon={TrendingUp}
                 title="CBM PRICE"
-                value={`$${stats.bnbPrice}`}
+                value={`$${cbmPrice}`}
               />
               <StatsCard
                 icon={Activity}

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import Table from "../components/Table";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ethers } from "ethers";
+import { getCbmNewPeice } from "../api/userApi";
 
 // const API_URL = "http://192.168.1.3:8080/api/transactions/data";
 const API_URL = "https://api.cbmscan.com/api/transactions/data";
@@ -15,7 +16,7 @@ const Transaction = () => {
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+const [cbmprice, setCbmPrice] = useState(null)
   // Truncate helper
   const truncate = (text, start = 6, end = 6) => {
     if (!text || typeof text !== "string") return "N/A";
@@ -179,6 +180,21 @@ const Transaction = () => {
       processTransactionsData(apiData);
     }
   }, [fetchTransactionsData, processTransactionsData]);
+
+    const getCbmPrice = async () => {
+    try {
+      const res = await getCbmNewPeice();
+      console.log("✅ CBM Price:", res?.cbmPrice?.cbmPrice);
+      setCbmPrice(res?.cbmPrice?.cbmPrice);
+    } catch (err) {
+      console.error("❌ Error fetching CBM price:", err.message || err);
+    }
+  };
+  
+  // ✅ Run once when component mounts
+  useEffect(() => {
+    getCbmPrice();
+  }, []);
 
   // Table columns
   const tableColumns = [
@@ -399,7 +415,7 @@ const Transaction = () => {
           <div className="bg-white border border-indigo-200 p-4 rounded-lg shadow-sm">
             <p className="text-gray-500 font-medium text-sm">CBM Price</p>
             <p className="text-2xl font-bold text-indigo-600 mt-1">
-              ${stats.bnbPrice?.toFixed(2) || 0}
+              ${cbmprice?.toFixed(2) || 0}
             </p>
           </div>
         </div>
