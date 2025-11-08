@@ -10,11 +10,11 @@ export const MainContent = {
 };
 
 export const backendConfig = {
-  base: "http://192.168.1.3:6071/api",
-  origin: "http://192.168.1.3:6071",
+  // base: "http://192.168.1.3:6071/api",
+  // origin: "http://192.168.1.3:6071",
 
-  // base: "https://api.p5.starchainlabs.in/api",
-  // origin: "https://api.p5.starchainlabs.in",
+  base: "https://api.cbm.robomine.live/api",
+  origin: "https://api.cbm.robomine.live",
 };
 
 export const Axios = axios.create({
