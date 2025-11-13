@@ -140,6 +140,7 @@ const AllTokens = () => {
                     <td className="px-6 py-4 text-center">
                       <Link
                         to={`/token/${token.tokenAddress}`}
+                        state={{token}}
                         className="inline-flex items-center gap-1 text-blue-600 hover:underline"
                       >
                         View <ExternalLink className="w-4 h-4" />

@@ -386,7 +386,7 @@
 
 
 import React, { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import {
   ArrowLeft,
   Copy,
@@ -413,6 +413,9 @@ const TokenDetails = () => {
   const [showAllTransfers, setShowAllTransfers] = useState(false);
 
   const initialLimit = 10;
+
+    const { state } = useLocation();
+  const tokenDetails = state?.token;
 
   // Copy helper
   const copyToClipboard = (text, id) => {
@@ -560,12 +563,12 @@ const TokenDetails = () => {
 
               <div
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl font-semibold ${
-                  token.isVerified
+                  tokenDetails?.isVerified
                     ? "bg-green-500 text-white"
                     : "bg-red-500 text-white"
                 }`}
               >
-                {token.isVerified ? (
+                {tokenDetails?.isVerified ? (
                   <>
                     <CheckCircle className="w-5 h-5" />
                     Verified
