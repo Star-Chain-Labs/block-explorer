@@ -116,3 +116,70 @@
 .p-datatable .p-sortable-column:hover .p-sortable-column-icon {
   color: white; 
 }
+
+
+
+/* Popup Slide + Zoom Animation */
+@keyframes popup-bounce {
+  0% {
+    opacity: 0;
+    transform: scale(0.7) translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-popup {
+  animation: popup-bounce 0.4s ease-out forwards;
+}
+
+/* Fireworks Animation */
+.firework {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background: transparent;
+  border-radius: 50%;
+  animation: explode 1.3s infinite ease-out;
+}
+
+.firework:nth-child(1) {
+  top: 20%;
+  left: 30%;
+  animation-delay: 0s;
+}
+
+.firework:nth-child(2) {
+  top: 60%;
+  left: 70%;
+  animation-delay: 0.3s;
+}
+
+.firework:nth-child(3) {
+  top: 40%;
+  left: 50%;
+  animation-delay: 0.6s;
+}
+
+/* Firework Burst Particles */
+@keyframes explode {
+  0% {
+    box-shadow: 0 0 0px #ffdd00;
+    opacity: 1;
+  }
+  100% {
+    box-shadow:
+      0px -40px 0px #ff4d4d,
+      40px 0px 0px #4dd2ff,
+      0px 40px 0px #4dff88,
+      -40px 0px 0px #ffdb4d,
+      30px 30px 0px #ff66cc,
+      -30px 30px 0px #9966ff,
+      30px -30px 0px #33ffcc,
+      -30px -30px 0px #ffaa33;
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
