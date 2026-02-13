@@ -537,7 +537,7 @@ const CreateToken = () => {
       const factory = new ethers.ContractFactory(
         contractABI,
         contractBytecode,
-        signer
+        signer,
       );
       const initialSupply = ethers.parseUnits(form.supply.toString(), 0);
       const contract = await factory.deploy(
@@ -547,7 +547,7 @@ const CreateToken = () => {
         {
           gasLimit,
           gasPrice, // use old-style gasPrice instead of EIP-1559 fields
-        }
+        },
       );
 
       await contract.waitForDeployment();

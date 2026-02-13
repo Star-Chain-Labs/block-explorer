@@ -41,8 +41,8 @@ const Footer = () => {
               chainId: "0x2C2",
               chainName: "CBM Mainnet",
               nativeCurrency: {
-                name: "RBM",
-                symbol: "RBM",
+                name: "CBM",
+                symbol: "CBM",
                 decimals: 18,
               },
               rpcUrls: ["https://rpc.cbmscan.com"],
@@ -120,9 +120,8 @@ const Footer = () => {
 
                 <div className="p-6">
                   <div className="space-y-3">
-                  {console.log(networkDetails,"this is the network bhia ")}
+                    {console.log(networkDetails, "this is the network bhia ")}
                     {networkDetails.map((detail, index) => (
-            
                       <div
                         key={index}
                         className="flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors group cursor-pointer"
@@ -133,7 +132,7 @@ const Footer = () => {
                             {detail.label}
                           </p>
                           <p className="text-gray-900 font-medium text-sm">
-                            {detail.value }
+                            {detail.value}
                           </p>
                         </div>
                         <button className="ml-3 p-2 text-gray-400 hover:text-green-500 opacity-0 group-hover:opacity-100 transition-all">
