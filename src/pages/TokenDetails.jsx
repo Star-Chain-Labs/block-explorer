@@ -397,6 +397,7 @@ import {
   Coins,
   FileText,
   Check,
+  Download 
 } from "lucide-react";
 
 const TokenDetails = () => {
@@ -467,7 +468,7 @@ const TokenDetails = () => {
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-slate-600 text-lg font-medium">
-            Loading token details...
+            Loading   token details...
           </p>
         </div>
       </div>
@@ -513,10 +514,74 @@ const TokenDetails = () => {
     ? filteredTransfers
     : filteredTransfers.slice(0, initialLimit);
 
+
+
+const handleDownload = (displayedHolders = []) => {
+  if (!Array.isArray(displayedHolders) || displayedHolders.length === 0) {
+    console.warn("No holders available for export.");
+    return;
+  }
+
+  try {
+    const columns = [
+      { label: "Rank", key: "rank" },
+      { label: "Address", key: "address" },
+      { label: "Balance", key: "balance" },
+    ];
+
+    // Header
+    const header = columns.map(col => col.label).join(",");
+
+    // Rows
+    const rows = displayedHolders.map((holder, index) => {
+      const rowData = {
+        rank: index + 1,
+        address: holder?.address ?? "",
+        balance: holder?.balance ?? 0,
+      };
+
+      return columns
+        .map(col => {
+          let value = rowData[col.key];
+
+          // Prevent CSV injection (Excel security)
+          if (typeof value === "string" && /^[=+\-@]/.test(value)) {
+            value = `'${value}`;
+          }
+
+          const escaped = String(value).replace(/"/g, '""');
+          return `"${escaped}"`;
+        })
+        .join(",");
+    });
+
+    const csvContent = [header, ...rows].join("\n");
+
+    const blob = new Blob([csvContent], {
+      type: "text/csv;charset=utf-8;",
+    });
+
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `token_holders_${Date.now()}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Holder CSV export failed:", error);
+  }
+};
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Back */}
+
+        <div className="flex  justify-between">
         <Link
           to="/tokens/token-list"
           className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium mb-6 transition-colors group"
@@ -524,6 +589,15 @@ const TokenDetails = () => {
           <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
           Back to All Tokens
         </Link>
+        <div
+         onClick={()=> handleDownload(displayedHolders)}
+          className="inline-flex items-center cursor-pointer gap-2 text-blue-600 hover:text-blue-700 font-medium mb-6 transition-colors group"
+        >
+          <Download size={20}   className="w-5  h-5 group-hover:-translate-x-1 transition-transform" />
+         Download CSV
+        </div>
+
+        </div>
 
         {/* Token Info */}
         <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden mb-6">

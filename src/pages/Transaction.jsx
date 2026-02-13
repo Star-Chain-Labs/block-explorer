@@ -3,6 +3,7 @@ import Table from "../components/Table";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ethers } from "ethers";
 import { getCbmNewPeice } from "../api/userApi";
+import { Download } from "lucide-react";
 
 // const API_URL = "http://192.168.1.3:8080/api/transactions/data";
 const API_URL = "https://api.cbmscan.com/api/transactions/data";
@@ -356,6 +357,66 @@ const [cbmprice, setCbmPrice] = useState(null)
     );
   }
 
+
+
+
+const handleDownloadCSV = (transactions = []) => {
+  if (!Array.isArray(transactions) || transactions.length === 0) {
+    console.warn("No transactions available for export.");
+    return;
+  }
+
+  try {
+    const columns = [
+      { label: "Block Number", key: "blockNumber" },
+      { label: "Transaction Hash", key: "hash" },
+      { label: "From", key: "from" },
+      { label: "To", key: "to" },
+      { label: "Gas Used", key: "gasUsed" },
+      { label: "Gas Fee", key: "gasFeeFormatted" },
+      { label: "Value", key: "valueFormatted" },
+      { label: "Time Ago", key: "timeAgo" },
+    ];
+
+    const header = columns.map(col => col.label).join(",");
+
+    const rows = transactions.map(tx =>
+      columns
+        .map(col => {
+          let value = tx?.[col.key] ?? "";
+
+          // Prevent CSV injection (important for Excel)
+          if (typeof value === "string" && /^[=+\-@]/.test(value)) {
+            value = `'${value}`;
+          }
+
+          const escaped = String(value).replace(/"/g, '""');
+          return `"${escaped}"`;
+        })
+        .join(",")
+    );
+
+    const csvContent = [header, ...rows].join("\n");
+
+    const blob = new Blob([csvContent], {
+      type: "text/csv;charset=utf-8;",
+    });
+
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `transactions_${Date.now()}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("CSV export failed:", error);
+  }
+};
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -387,6 +448,13 @@ const [cbmprice, setCbmPrice] = useState(null)
             className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
           >
             ← Back to Dashboard
+          </button>
+          <button
+            onClick={() => handleDownloadCSV(transactions)}
+            className="px-4 py-2 flex items-center gap-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          >
+              <Download className="w-4 h-4" />
+          Download CSV
           </button>
         </div>
       </div>
