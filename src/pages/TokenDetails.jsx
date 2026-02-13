@@ -416,6 +416,7 @@ const TokenDetails = () => {
   const initialLimit = 10;
 
     const { state } = useLocation();
+    // console.log(state,"bhai aisa ")
   const tokenDetails = state?.token;
 
   // Copy helper
@@ -606,10 +607,10 @@ const handleDownload = (displayedHolders = []) => {
               <div>
                 <div className="flex items-center gap-3 mb-2">
                   <h1 className="text-3xl font-bold text-white">
-                    {token.name}
+                    {tokenDetails?.name}
                   </h1>
                   <span className="px-3 py-1 bg-white/20 backdrop-blur-sm text-white rounded-lg font-semibold text-lg">
-                    {token.symbol}
+                    {tokenDetails?.symbol}
                   </span>
                 </div>
 
@@ -709,10 +710,11 @@ const handleDownload = (displayedHolders = []) => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <span className="font-semibold text-slate-800">
-                          {h.balance.toLocaleString()}
+                          {h.balance.toLocaleString() } 
+                         
                         </span>
                         <span className="text-slate-500 text-sm ml-1">
-                          {token.symbol}
+                          { tokenDetails?.symbol }
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
@@ -801,7 +803,7 @@ const handleDownload = (displayedHolders = []) => {
                         {t.value.toLocaleString()}
                       </span>
                       <span className="text-slate-500 text-sm ml-1">
-                        {token.symbol}
+                        {tokenDetails?.symbol}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-slate-600">
