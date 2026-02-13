@@ -28,8 +28,8 @@ const Footer = () => {
               chainId: "0x2C2",
               chainName: "CBM Mainnet",
               nativeCurrency: {
-                name: "CBM",
-                symbol: "CBM",
+                name: "RBM",
+                symbol: "RBM",
                 decimals: 18,
               },
               rpcUrls: ["https://rpc.cbmscan.com"],
@@ -105,10 +105,12 @@ const Footer = () => {
                     <span className="font-semibold">Chain ID:</span> 706
                   </p>
                   <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Symbol:</span> CBM
+                    <span className="font-semibold">Symbol:</span> RBM
                   </p>
                 </div>
               </div>
+
+             
             )}
 
             {popupStatus === "error" && (
